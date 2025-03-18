@@ -8,7 +8,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 object PermissionManager {
-    private const val PERMISSION_REQUEST_CODE = 1001
+    private const val PERMISSION_REQUEST_CODE = 100
 
     fun checkPermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -24,5 +24,9 @@ object PermissionManager {
         } else {
             ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST_CODE)
         }
+    }
+
+    fun isPermissionGranted(requestCode: Int, grantResults: IntArray): Boolean {
+        return requestCode == 100 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
     }
 }
