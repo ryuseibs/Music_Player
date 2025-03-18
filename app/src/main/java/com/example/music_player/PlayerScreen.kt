@@ -69,7 +69,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
 
                 Button(
                     onClick = {
-                        if (isPlaying) viewModel.pause() else viewModel.play()
+                        if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
                     }
                 ) {
                     Text(if (isPlaying) "一時停止" else "再生")
