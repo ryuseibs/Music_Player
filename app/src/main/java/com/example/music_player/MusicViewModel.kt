@@ -9,4 +9,15 @@ class MusicViewModel : ViewModel() {
         Song("sample song","sample artist",R.drawable.placeholder_artwork)
     )
     val currentSong: StateFlow<Song> = _currentSong
+
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying
+
+    fun play() {
+        _isPlaying.value = true
+    }
+
+    fun pause() {
+        _isPlaying.value = false
+    }
 }
