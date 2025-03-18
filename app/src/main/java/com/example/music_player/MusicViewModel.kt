@@ -27,6 +27,11 @@ class MusicViewModel : ViewModel() {
     fun playCurrentTrack(context: Context) {
         mediaPlayer?.release() // 既存のプレイヤーを解放
         mediaPlayer = MediaPlayer.create(context, songList[_currentSongIndex.value].albumArtResId)
+
+        mediaPlayer?.setOnCompletionListener {
+            nextTrack(context)
+        }
+
         mediaPlayer?.start()
         _isPlaying.value = true
     }
