@@ -1,5 +1,7 @@
 package com.example.music_player
 
+import android.content.Context
+import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +22,14 @@ class MusicViewModel : ViewModel() {
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
+    private var mediaPlayer: MediaPlayer? = null
+
+    fun playCurrentTrack(context: Context) {
+        mediaPlayer?.release() // 既存のプレイヤーを解放
+        mediaPlayer = MediaPlayer.create(context, songList[_currentSongIndex.value].albumArtResId)
+        mediaPlayer?.start()
+        _isPlaying.value = true
+    }
 
     fun play() {
         _isPlaying.value = true
@@ -29,15 +39,21 @@ class MusicViewModel : ViewModel() {
         _isPlaying.value = false
     }
 
-    fun nextTrack() {
+    fun nextTrack(context: Context) {
         if (_currentSongIndex.value < songList.size - 1) {
             _currentSongIndex.value +=1
+            if (_isPlaying.value) {
+                playCurrentTrack(context)
+            }
         }
     }
 
-    fun previousTrack() {
+    fun previousTrack(context: Context) {
         if (_currentSongIndex.value > 0) {
             _currentSongIndex.value -= 1
+            if (_isPlaying.value) {
+                playCurrentTrack(context)
+            }
         }
     }
 }
