@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
     val currentSong by viewModel.currentSong.collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState()
 
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -50,6 +52,16 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    if (isPlaying) viewModel.pause() else viewModel.play()
+                }
+            ) {
+                Text(if (isPlaying) "Pause" else "Play")
+            }
         }
     }
 }
