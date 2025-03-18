@@ -13,7 +13,8 @@ class PlayerActivity : AppCompatActivity() {
             PermissionManager.onRequestPermissionsResult(this)
         }
 
-        val MusicViewModel: MusicViewModel = ViewModelProvider(this).get(MusicViewModel::class.java)
+        val factory = MusicViewModelFactory(this)
+        val MusicViewModel: MusicViewModel = ViewModelProvider(this, factory).get(MusicViewModel::class.java)
 
         setContent {
             PlayerScreen(MusicViewModel)
