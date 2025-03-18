@@ -9,7 +9,12 @@ class PlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (!PermissionManager.checkPermission(this)) {
+            PermissionManager.onRequestPermissionsResult(this)
+        }
+
         val MusicViewModel: MusicViewModel = ViewModelProvider(this).get(MusicViewModel::class.java)
+
         setContent {
             PlayerScreen(MusicViewModel)
         }
