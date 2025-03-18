@@ -11,19 +11,27 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 class MusicViewModel(private val context: Context) : ViewModel() {
     private val _songList = MutableStateFlow<List<Song>>(emptyList())
     val songList: StateFlow<List<Song>> = _songList
 
     private val _currentSongIndex = MutableStateFlow(0)
-    val currentSong: StateFlow<Song> = _currentSongIndex.map { _songList.value.getOrNull(it) ?: Song("","","")}
-        .stateIn(viewModelScope, SharingStarted.Lazily, Song("","",""))
+    val currentSong: StateFlow<Song> = _currentSongIndex.map { _songList.value.getOrNull(it) ?: Song("","","","")}
+        .stateIn(viewModelScope, SharingStarted.Lazily, Song("","","",""))
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
 
     private var mediaPlayer: MediaPlayer? = null
+
+    private val _currentPosition = MutableStateFlow(0)
+    val currentPosition: StateFlow<Int> = _currentPosition
+
+    private val _duration = MutableStateFlow(0)
+    val duration: StateFlow<Int> = _duration
 
     init {
         loadMusicList(context)
@@ -43,8 +51,24 @@ class MusicViewModel(private val context: Context) : ViewModel() {
             setDataSource(songPath)
             prepare()
             start()
+            _duration.value = duration
+            setOnCompletionListener {
+                nextTrack(context)
+            }
         }
+
         _isPlaying.value = true
+
+        viewModelScope.launch {
+            while (_isPlaying.value) {
+                _currentPosition.value = mediaPlayer?.currentPosition ?: 0
+                delay(500) // 🔹 0.5秒ごとに更新
+            }
+        }
+    }
+
+    fun seekTo(position: Int) {
+        mediaPlayer?.seekTo(position)
     }
 
     fun play() {
