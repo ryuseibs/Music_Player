@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.Surface
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.sp
 fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
     val currentSong by viewModel.currentSong.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
+    val context = LocalContext.current
 
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -61,7 +63,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Button( onClick = { viewModel.previousTrack()}) {
+                Button( onClick = { viewModel.previousTrack(context)}) {
                     Text("前の曲")
                 }
 
@@ -73,7 +75,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                     Text(if (isPlaying) "一時停止" else "再生")
                 }
 
-                Button(onClick = { viewModel.nextTrack()}) {
+                Button(onClick = { viewModel.nextTrack(context)}) {
                     Text("次の曲")
                 }
             }
