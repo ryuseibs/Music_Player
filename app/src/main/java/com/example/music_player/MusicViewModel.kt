@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
-class MusicViewModel : ViewModel() {
+class MusicViewModel(private val context: Context) : ViewModel() {
     private val _songList = MutableStateFlow<List<Song>>(emptyList())
     val songList: StateFlow<List<Song>> = _songList
 
