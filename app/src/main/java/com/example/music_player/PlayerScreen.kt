@@ -68,7 +68,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier
             .fillMaxSize()
-            .offset(y = (-19).dp)
+            .offset(y = (-19).dp) //TODO: これがなくなると画面最上部に空白が生じる。調査は開発完了後とする。
             .consumeWindowInsets(PaddingValues(0.dp)),
     ) {
         Column (
