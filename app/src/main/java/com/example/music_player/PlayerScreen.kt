@@ -88,23 +88,28 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 }
             } ?: BitmapFactory.decodeResource(context.resources, R.drawable.placeholder_artwork).asImageBitmap()
 
+        Box (
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(450.dp)
+        ) {
             Image(
                 bitmap = albumArt,
                 contentDescription = "Album Artwork",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(450.dp)
-                    .align(Alignment.CenterHorizontally)
-                    .aspectRatio(1f)
+                    .fillMaxSize()
                     .clip(RectangleShape)
-                    .border(0.dp, Color.Gray, RectangleShape)
             )
+        }
 
             Slider(
                 value = currentPosition.toFloat(),
                 valueRange = 0f..duration.toFloat(),
                 onValueChange = { viewModel.seekTo(it.toInt()) },
-                modifier = Modifier.fillMaxWidth(0.8f)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-23).dp)
             )
 
             Row(
