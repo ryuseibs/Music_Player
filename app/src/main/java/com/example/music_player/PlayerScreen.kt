@@ -3,20 +3,36 @@ package com.example.music_player
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.Surface
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.mandatorySystemGestures
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,13 +41,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import java.io.File
 
 @Composable
@@ -44,12 +66,16 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
 
     Surface(
         color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .offset(y = (-19).dp)
+            .consumeWindowInsets(PaddingValues(0.dp)),
     ) {
         Column (
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(0.dp),
         ) {
             val albumArt = currentSong.albumArtPath?.let { path ->
                 Log.d("PlayerScreen", "Album Art Path: $path")
@@ -66,9 +92,12 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 bitmap = albumArt,
                 contentDescription = "Album Artwork",
                 modifier = Modifier
-                    .size(250.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .border(2.dp, Color.Gray, RoundedCornerShape(16.dp))
+                    .fillMaxWidth()
+                    .height(450.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .aspectRatio(1f)
+                    .clip(RectangleShape)
+                    .border(0.dp, Color.Gray, RectangleShape)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
