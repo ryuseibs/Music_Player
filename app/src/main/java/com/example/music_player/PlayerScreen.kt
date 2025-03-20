@@ -100,22 +100,6 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                     .border(0.dp, Color.Gray, RectangleShape)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = currentSong.title,
-                fontSize = 24.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Text(
-                text = currentSong.artist,
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             Slider(
                 value = currentPosition.toFloat(),
                 valueRange = 0f..duration.toFloat(),
@@ -130,6 +114,20 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 Text(text = formatTime(currentPosition))
                 Text(text = formatTime(duration))
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = currentSong.title,
+                fontSize = 24.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = currentSong.artist,
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
