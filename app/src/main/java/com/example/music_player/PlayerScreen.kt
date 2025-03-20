@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.Surface
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -56,6 +58,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
     val currentSong by viewModel.currentSong.collectAsState()
@@ -68,7 +71,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier
             .fillMaxSize()
-            .offset(y = (-19).dp) //TODO: これがなくなると画面最上部に空白が生じる。調査は開発完了後とする。
+            .offset(y = (-19).dp) //TODO: これがなくなると画面最上部に空白が生じる。調査は開発完了後とする(動的にしておく)。
             .consumeWindowInsets(PaddingValues(0.dp)),
     ) {
         Column (
@@ -88,20 +91,15 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 }
             } ?: BitmapFactory.decodeResource(context.resources, R.drawable.placeholder_artwork).asImageBitmap()
 
-        Box (
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(450.dp)
-        ) {
             Image(
                 bitmap = albumArt,
                 contentDescription = "Album Artwork",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(450.dp)
                     .clip(RectangleShape)
             )
-        }
 
             Slider(
                 value = currentPosition.toFloat(),
@@ -109,7 +107,23 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 onValueChange = { viewModel.seekTo(it.toInt()) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(y = (-23).dp)
+                    .padding(horizontal = 0.dp), //TODO: シークバー設置後画面左右両端との余白が生じないようにする
+                colors = SliderDefaults.colors(
+                    thumbColor = Color.Transparent,
+                    activeTrackColor = Color.Black,
+                    inactiveTrackColor = Color.Gray
+                //TODO: 再生後の進捗バーが完全透明になるようにする
+                // （未再生時のバーの背景色がデフォルトで指定されているため再生しながら進捗バーを順次完全透明にすることが困難）
+                ),
+                thumb = {
+                    Box(
+                        modifier = Modifier
+                            .size(4.dp,32.dp)
+                            .offset(y = 14.dp) // TODO: 今後動的にアートワークの直下に配置できるように調整予定
+                            .background(Color.Red, shape = RoundedCornerShape(0.dp,0.dp,5.dp,5.dp))
+                            .border(2.dp, Color.Red, shape = RoundedCornerShape(0.dp,0.dp,5.dp,5.dp))
+                    )
+                }
             )
 
             Row(
