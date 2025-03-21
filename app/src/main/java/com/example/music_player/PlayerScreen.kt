@@ -3,12 +3,14 @@ package com.example.music_player
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.Surface
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +34,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +54,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.focusModifier
@@ -69,9 +74,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import java.io.File
 import androidx.constraintlayout.compose.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -234,16 +243,49 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = currentSong.title,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Normal,
-                fontFamily = FontFamily.SansSerif,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+            @Composable
+            fun AnimateScrollText(
+                text: String,
+                modifier: Modifier = Modifier,
+                fontSize: TextUnit = 28.sp,
+                speed: Int = 10000
+            ) {
+                val scrollState = rememberScrollState()
+                val coroutineScope = rememberCoroutineScope()
+
+                LaunchedEffect(text) {
+                    while (true) {
+                        val maxScroll = scrollState.maxValue
+                        coroutineScope.launch {
+                            scrollState.animateScrollTo(maxScroll, animationSpec = tween(durationMillis = speed))
+                        }.join()
+                        scrollState.scrollTo(0)
+                    }
+                }
+                Box(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .wrapContentSize(Alignment.Center)
+                        .horizontalScroll(scrollState, enabled = true)
+                ) {
+                    Text(
+                        text = text,
+                        fontSize = fontSize,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = FontFamily.SansSerif,
+                        color = Color.Black,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Clip,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+            }
+
+            AnimateScrollText(text = currentSong.title)
 
             Spacer(modifier = Modifier.height(15.dp))
 
