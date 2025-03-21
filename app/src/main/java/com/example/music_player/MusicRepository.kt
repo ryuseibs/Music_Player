@@ -17,6 +17,7 @@ object MusicRepository {
         val projection = arrayOf(
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DATA
         )
 
@@ -31,14 +32,16 @@ object MusicRepository {
         cursor?.use {
             val titleColumn = it.getColumnIndex(MediaStore.Audio.Media.TITLE)
             val artistColumn = it.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+            val albumColumn = it.getColumnIndex(MediaStore.Audio.Media.ALBUM)
             val dataColumn = it.getColumnIndex(MediaStore.Audio.Media.DATA)
 
             while (it.moveToNext()) {
                 val title = it.getString(titleColumn)
                 val artist = it.getString(artistColumn)
+                val album = it.getString(albumColumn)
                 val data = it.getString(dataColumn)
 
-                songList.add(Song(title, artist, data, null)) // `data` はファイルパス
+                songList.add(Song(title, artist, album, data, null)) // `data` はファイルパス
             }
         }
 
