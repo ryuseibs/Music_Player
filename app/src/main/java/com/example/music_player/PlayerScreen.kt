@@ -340,28 +340,58 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 IconButton(
                     onClick = { viewModel.previousTrack(context)},
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(56.dp)
                         .clip(CircleShape)
                         .background(Color.Transparent)
+                        .offset(y = 0.dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.previous),
                         contentDescription = "Previous",
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(35.dp)
                     )
                 }
 
-                Button(
+                IconButton(
                     onClick = {
                         if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
-                    }
+                    },
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(Color.Transparent)
                 ) {
-                    Text(if (isPlaying) "一時停止" else "再生")
+                    if (isPlaying) {
+                        Image(
+                            painter = painterResource(id = R.drawable.pause),
+                            contentDescription = "Pause",
+                            modifier = Modifier
+                                .size(35.dp)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.baseline_play_arrow_24),
+                            contentDescription = "Pause",
+                            modifier = Modifier
+                                .size(55.dp)
+                        )
+                    }
                 }
 
-                Button(onClick = { viewModel.nextTrack(context)}) {
-                    Text("次の曲")
+                IconButton(
+                    onClick = { viewModel.nextTrack(context)},
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RectangleShape)
+                        .background(Color.Transparent)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.next),
+                        contentDescription = "Next",
+                        modifier = Modifier
+                            .size(35.dp)
+                    )
                 }
             }
         }
