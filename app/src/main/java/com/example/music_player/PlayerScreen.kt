@@ -164,7 +164,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 Canvas(
                     modifier = modifier
                         .fillMaxWidth()
-                        .height(0.dp)
+                        .height(8.dp)
                         .pointerInput(Unit) {
                             detectTapGestures { offset ->
                                 val newProgress = (offset.x / size.width).coerceIn(0f, 1f)
@@ -176,13 +176,15 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                     val barHeight = 8.dp.toPx()
                     val barY = size.height / 2
 
+                    //未再生バーのレイアウト
                     drawLine(
-                        color = Color.Gray,
+                        color = Color.Transparent.copy(alpha = 0.2f),
                         start = Offset(0f,barY),
                         end = Offset(size.width,barY),
                         strokeWidth = barHeight
                     )
 
+                    //再生済(進捗)バーのレイアウト
                     drawLine(
                         color = Color.Black,
                         start = Offset(0f, barY),
@@ -206,6 +208,8 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 onSeek = { newPosition -> println("Seek to: $newPosition") },
                 modifier = Modifier.padding(0.dp)
             )
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(0.8f),
