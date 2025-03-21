@@ -228,7 +228,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 modifier = Modifier.padding(0.dp)
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(1f),
@@ -247,13 +247,13 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(31.dp))
 
             @Composable
             fun AnimateScrollText(
                 text: String,
                 modifier: Modifier = Modifier,
-                fontSize: TextUnit = 28.sp,
+                fontSize: TextUnit = 24.sp,
                 speed: Int = 10000
             ) {
                 val scrollState = rememberScrollState()
@@ -285,7 +285,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 Box(
                     modifier = modifier
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .height(44.dp)
                         .wrapContentSize(Alignment.Center)
                         .horizontalScroll(scrollState, enabled = false)
                 ) {
