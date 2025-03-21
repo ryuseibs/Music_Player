@@ -52,7 +52,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
@@ -187,10 +189,11 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                         strokeWidth = barHeight
                     )
 
-                    drawCircle(
+                    drawRoundRect(
                         color = Color.Red,
-                        radius = thumbRadius,
-                        center = Offset(size.width * progress, barY)
+                        topLeft = Offset(size.width * progress - 4.dp.toPx(), barY - 5.dp.toPx()),
+                        size = Size(4.dp.toPx(),32.dp.toPx()),
+                        cornerRadius = CornerRadius(10.dp.toPx(),5.dp.toPx())
                     )
                 }
             }
