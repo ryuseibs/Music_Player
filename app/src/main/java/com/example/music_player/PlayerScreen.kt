@@ -330,68 +330,80 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
 
             Spacer(modifier = Modifier.height(80.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-            ) {
-                IconButton(
-                    onClick = { viewModel.previousTrack(context)},
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(Color.Transparent)
-                        .offset(y = 0.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.previous),
-                        contentDescription = "Previous",
-                        modifier = Modifier
-                            .size(35.dp)
-                    )
-                }
+            ConstraintLayout(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+                val (controlButtons) = createRefs()
 
-                IconButton(
-                    onClick = {
-                        if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
-                    },
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(Color.Transparent)
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .padding(horizontal = 32.dp)
+                        .constrainAs(controlButtons) {
+                            bottom.linkTo(parent.bottom, margin = 200.dp)
+                        }
                 ) {
-                    if (isPlaying) {
+                    IconButton(
+                        onClick = { viewModel.previousTrack(context) },
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(CircleShape)
+                            .background(Color.Transparent)
+                            .offset(y = 0.dp)
+                    ) {
                         Image(
-                            painter = painterResource(id = R.drawable.pause),
-                            contentDescription = "Pause",
+                            painter = painterResource(id = R.drawable.previous),
+                            contentDescription = "Previous",
                             modifier = Modifier
                                 .size(35.dp)
                         )
-                    } else {
+                    }
+
+                    IconButton(
+                        onClick = {
+                            if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
+                        },
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(CircleShape)
+                            .background(Color.Transparent)
+                    ) {
+                        if (isPlaying) {
+                            Image(
+                                painter = painterResource(id = R.drawable.pause),
+                                contentDescription = "Pause",
+                                modifier = Modifier
+                                    .size(35.dp)
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.baseline_play_arrow_24),
+                                contentDescription = "Pause",
+                                modifier = Modifier
+                                    .size(55.dp)
+                            )
+                        }
+                    }
+
+                    IconButton(
+                        onClick = { viewModel.nextTrack(context) },
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RectangleShape)
+                            .background(Color.Transparent)
+                    ) {
                         Image(
-                            painter = painterResource(id = R.drawable.baseline_play_arrow_24),
-                            contentDescription = "Pause",
+                            painter = painterResource(id = R.drawable.next),
+                            contentDescription = "Next",
                             modifier = Modifier
-                                .size(55.dp)
+                                .size(35.dp)
                         )
                     }
-                }
-
-                IconButton(
-                    onClick = { viewModel.nextTrack(context)},
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RectangleShape)
-                        .background(Color.Transparent)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.next),
-                        contentDescription = "Next",
-                        modifier = Modifier
-                            .size(35.dp)
-                    )
                 }
             }
         }
