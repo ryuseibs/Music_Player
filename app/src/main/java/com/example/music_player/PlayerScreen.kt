@@ -237,7 +237,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
             Text(
                 text = currentSong.title,
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Normal,
                 fontFamily = FontFamily.SansSerif,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -245,8 +245,10 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                     .fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(15.dp))
+
             Text(
-                text = currentSong.artist,
+                text = currentSong.artist + "  -  " + currentSong.album,
                 fontSize = 17.sp,
                 fontFamily = FontFamily.SansSerif,
                 color = Color.Gray,
