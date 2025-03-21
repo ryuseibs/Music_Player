@@ -84,7 +84,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
         modifier = Modifier
             .fillMaxSize()
             .offset(y = (-19).dp) //TODO: これがなくなると画面最上部に空白が生じる。調査は開発完了後とする(動的にしておく)。
-            .consumeWindowInsets(PaddingValues(0.dp)),
+            .consumeWindowInsets(PaddingValues(0.dp))
     ) {
         Column (
             modifier = Modifier
