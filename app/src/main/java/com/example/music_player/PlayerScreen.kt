@@ -3,6 +3,7 @@ package com.example.music_player
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.Surface
+import android.widget.ImageButton
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -37,9 +38,13 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -323,14 +328,28 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                     .fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(80.dp))
 
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
             ) {
-                Button( onClick = { viewModel.previousTrack(context)}) {
-                    Text("前の曲")
+                IconButton(
+                    onClick = { viewModel.previousTrack(context)},
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(Color.Transparent)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.previous),
+                        contentDescription = "Previous",
+                        modifier = Modifier
+                            .size(48.dp)
+                    )
                 }
 
                 Button(
