@@ -172,7 +172,6 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                         }
                 ) {
                     val barHeight = 8.dp.toPx()
-                    val thumbRadius = 10.dp.toPx()
                     val barY = size.height / 2
 
                     drawLine(
@@ -191,9 +190,9 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
 
                     drawRoundRect(
                         color = Color.Red,
-                        topLeft = Offset(size.width * progress - 4.dp.toPx(), barY - 5.dp.toPx()),
+                        topLeft = Offset(size.width * progress - 4.dp.toPx(), barY - 4.dp.toPx()),
                         size = Size(4.dp.toPx(),32.dp.toPx()),
-                        cornerRadius = CornerRadius(10.dp.toPx(),5.dp.toPx())
+                        cornerRadius = CornerRadius(0.dp.toPx(),5.dp.toPx())
                     )
                 }
             }
