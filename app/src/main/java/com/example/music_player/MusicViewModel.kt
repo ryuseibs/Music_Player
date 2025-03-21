@@ -33,6 +33,9 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     private val _duration = MutableStateFlow(0)
     val duration: StateFlow<Int> = _duration
 
+    private val _remainingTime = MutableStateFlow(0)
+    val remainingTime: StateFlow<Int> = _remainingTime
+
     init {
         loadMusicList(context)
     }
@@ -62,7 +65,9 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         viewModelScope.launch {
             while (_isPlaying.value) {
                 _currentPosition.value = mediaPlayer?.currentPosition ?: 0
-                delay(500) // 🔹 0.5秒ごとに更新
+                _duration.value = mediaPlayer?.duration ?: 0
+                _remainingTime.value = maxOf((_duration.value) - (_currentPosition.value),0)
+                delay(500)
             }
         }
     }

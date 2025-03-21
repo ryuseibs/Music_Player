@@ -68,6 +68,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import java.io.File
 import androidx.constraintlayout.compose.*
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -80,6 +81,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
     val context = LocalContext.current
     val currentPosition by viewModel.currentPosition.collectAsState()
     val duration by viewModel.duration.collectAsState()
+    val remainingTime by viewModel.remainingTime.collectAsState()
 
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -214,28 +216,43 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier.fillMaxWidth(1f),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = formatTime(currentPosition))
-                Text(text = formatTime(duration))
+                Text(
+                    text = formatTime(currentPosition),
+                    fontSize = 15.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
+                Text(text = "-" + formatTime(remainingTime),
+                    fontSize = 15.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = currentSong.title,
-                fontSize = 24.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.SansSerif,
                 color = Color.Black,
-                modifier = Modifier.padding(top = 4.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
 
             Text(
                 text = currentSong.artist,
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onSurface
+                fontSize = 17.sp,
+                fontFamily = FontFamily.SansSerif,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(24.dp))
