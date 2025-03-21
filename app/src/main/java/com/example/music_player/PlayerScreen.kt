@@ -3,6 +3,7 @@ package com.example.music_player
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.Surface
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -53,8 +54,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.focusModifier
@@ -70,7 +73,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -81,6 +86,7 @@ import androidx.constraintlayout.compose.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -251,23 +257,37 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 speed: Int = 10000
             ) {
                 val scrollState = rememberScrollState()
-                val coroutineScope = rememberCoroutineScope()
+                var textWidth by remember { mutableStateOf(0) }
+                var containerWidth by remember { mutableStateOf(0) }
+                val canScroll = remember(textWidth, containerWidth) {
+                    textWidth > containerWidth
+                }
 
-                LaunchedEffect(text) {
-                    while (true) {
-                        val maxScroll = scrollState.maxValue
-                        coroutineScope.launch {
-                            scrollState.animateScrollTo(maxScroll, animationSpec = tween(durationMillis = speed))
-                        }.join()
-                        scrollState.scrollTo(0)
+                LaunchedEffect(canScroll) {
+                    if (canScroll) {
+                        val scrollDistance = textWidth - containerWidth
+
+                        while (true) {
+                            scrollState.animateScrollTo(
+                                scrollDistance,
+                                animationSpec = tween(
+                                    durationMillis = speed,
+                                    easing = LinearEasing
+                                )
+                            )
+                            delay(1000)
+                            scrollState.scrollTo(0)
+                            delay(500)
+                        }
                     }
                 }
+
                 Box(
                     modifier = modifier
                         .fillMaxWidth()
                         .height(50.dp)
                         .wrapContentSize(Alignment.Center)
-                        .horizontalScroll(scrollState, enabled = true)
+                        .horizontalScroll(scrollState, enabled = false)
                 ) {
                     Text(
                         text = text,
@@ -281,6 +301,9 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .onGloballyPositioned {
+                                textWidth = it.size.width
+                            }
                     )
                 }
             }
@@ -294,6 +317,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 fontSize = 17.sp,
                 fontFamily = FontFamily.SansSerif,
                 color = Color.Gray,
+                overflow = TextOverflow.Clip,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
