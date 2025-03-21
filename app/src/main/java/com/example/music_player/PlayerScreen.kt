@@ -51,6 +51,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -168,6 +169,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                             detectTapGestures { offset ->
                                 val newProgress = (offset.x / size.width).coerceIn(0f, 1f)
                                 onSeek(newProgress * duration)
+                                println("Tapped at: ${offset.x}")
                             }
                         }
                 ) {
@@ -193,6 +195,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                         topLeft = Offset(size.width * progress - 4.dp.toPx(), barY - 4.dp.toPx()),
                         size = Size(4.dp.toPx(),32.dp.toPx()),
                         cornerRadius = CornerRadius(0.dp.toPx(),5.dp.toPx())
+                        // TODO: ４箇所のうち下側の左右だけ丸みをつけたい（上記ではX,Y毎に丸めるため４箇所とも丸まってしまう）
                     )
                 }
             }
@@ -201,7 +204,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 currentPosition = currentPosition.toFloat(),
                 duration = duration.toFloat(),
                 onSeek = { newPosition -> println("Seek to: $newPosition") },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(0.dp)
             )
 
             Row(
