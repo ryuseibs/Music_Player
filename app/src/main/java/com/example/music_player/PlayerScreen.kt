@@ -334,7 +334,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-        ) {
+            ) {
                 val (controlButtons) = createRefs()
 
                 Row(
@@ -345,7 +345,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                         .height(50.dp)
                         .padding(horizontal = 32.dp)
                         .constrainAs(controlButtons) {
-                            bottom.linkTo(parent.bottom, margin = 200.dp)
+                            bottom.linkTo(parent.bottom, margin = 180.dp)
                         }
                 ) {
                     IconButton(
@@ -406,6 +406,45 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                     }
                 }
             }
+            @Composable
+            fun VolumeControl(viewModel: MusicViewModel) {
+                var volume by remember { mutableStateOf(1f) }
+
+                ConstraintLayout(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    val (volumeSlider) = createRefs()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .constrainAs(volumeSlider) {
+                                bottom.linkTo(parent.bottom, margin = 120.dp)
+                            }
+                            .padding(horizontal = 32.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Slider(
+                            value = volume,
+                            onValueChange = {
+                                volume = it
+                                viewModel.setVolume(it)
+                            },
+                            valueRange = 0f..1f,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            colors = SliderDefaults.colors(
+                                thumbColor = Color.Black,
+                                activeTrackColor = Color.Black,
+                                inactiveTrackColor = Color.Gray
+                            )
+                        )
+                    }
+                }
+            }
+            VolumeControl(viewModel)
         }
     }
 }

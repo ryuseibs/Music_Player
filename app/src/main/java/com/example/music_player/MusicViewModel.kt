@@ -109,4 +109,8 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         mediaPlayer?.release()
     }
 
+    fun setVolume(volume: Float) {
+        mediaPlayer?.setVolume(volume, volume)
+    }
+
 }
