@@ -66,6 +66,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import java.io.File
 import androidx.constraintlayout.compose.*
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -224,7 +226,10 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
             Text(
                 text = currentSong.title,
                 fontSize = 24.sp,
-                color = MaterialTheme.colorScheme.primary
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.SansSerif,
+                color = Color.Black,
+                modifier = Modifier.padding(top = 4.dp)
             )
 
             Text(
