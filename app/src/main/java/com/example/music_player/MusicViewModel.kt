@@ -3,6 +3,7 @@ package com.example.music_player
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.AudioManager
 import android.media.MediaPlayer
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -45,6 +46,9 @@ class MusicViewModel(private val context: Context) : ViewModel() {
 
     private val _dominantColor = mutableStateOf(Color.Black)
     val dominantColor: State<Color> = _dominantColor
+
+    private val _volume = mutableStateOf(5)  // 初期値は適宜
+    val volume: State<Int> = _volume
 
     init {
         loadMusicList(context)
@@ -127,8 +131,12 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         mediaPlayer?.release()
     }
 
-    fun setVolume(volume: Float) {
-        mediaPlayer?.setVolume(volume, volume)
+    fun setVolume(volume: Float, context: Context) {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        val newVolume = (volume / 15f * maxVolume).toInt().coerceIn(0, maxVolume)
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
+        _volume.value = newVolume
     }
 
     fun getArtworkBitmapFromPath(path: String?): Bitmap? {
@@ -142,5 +150,15 @@ class MusicViewModel(private val context: Context) : ViewModel() {
             val colorInt = palette?.getDominantColor(android.graphics.Color.BLACK) ?: android.graphics.Color.BLACK
             _dominantColor.value = Color(colorInt)
         }
+    }
+
+    fun updateVolumeFromSystem(value: Int) {
+        _volume.value = value
+    }
+
+    fun initializeVolume(context: Context) {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        _volume.value = currentVolume
     }
 }

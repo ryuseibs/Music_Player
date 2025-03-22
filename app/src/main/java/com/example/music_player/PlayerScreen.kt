@@ -1,6 +1,7 @@
 package com.example.music_player
 
 import android.content.Context
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.util.Log
@@ -95,6 +96,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.delay
 import android.graphics.Bitmap
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
@@ -129,6 +131,18 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
             null
         }
     } ?: BitmapFactory.decodeResource(context.resources, R.drawable.placeholder_artwork).asImageBitmap()
+
+    DisposableEffect(Unit) {
+        val receiver = VolumeChangeReceiver { newVolume ->
+            viewModel.updateVolumeFromSystem(newVolume)
+        }
+        val filter = IntentFilter("android.media.VOLUME_CHANGED_ACTION")
+        context.registerReceiver(receiver, filter)
+
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -458,12 +472,13 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                             verticalArrangement = Arrangement.SpaceBetween,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            LaunchedEffect(Unit) {
+                                viewModel.initializeVolume(context)
+                            }
                             Slider(
-                                value = currentVolume.value.toFloat(),
+                                value = viewModel.volume.value.toFloat(),
                                 onValueChange = {
-                                    val newVolume = it.toInt().coerceIn(0,maxVolume)
-                                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
-                                    currentVolume.value = newVolume
+                                    viewModel.setVolume(it, context)
                                 },
                                 valueRange = 0f..maxVolume.toFloat(),
                                 modifier = Modifier
@@ -473,7 +488,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                                     thumbColor = Color.White,
                                     activeTrackColor = Color.Black,
                                     inactiveTrackColor = Color.Gray
-                                )
+                                ),
                             )
                         }
                     }
