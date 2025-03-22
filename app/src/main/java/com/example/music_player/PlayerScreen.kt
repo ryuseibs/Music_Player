@@ -189,45 +189,6 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                         .height(450.dp)
                         .clip(RectangleShape)
                 )
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(horizontal = 0.dp)
-//        ) {
-//            Slider(
-//                value = currentPosition.toFloat(),
-//                valueRange = 0f..duration.toFloat(),
-//                onValueChange = { viewModel.seekTo(it.toInt()) },
-//                modifier = Modifier
-//                    .width(LocalConfiguration.current.screenWidthDp.dp + 0.dp)
-//                    .padding(horizontal = 0.dp), //TODO: シークバー設置後画面左右両端との余白が生じないようにする
-//                colors = SliderDefaults.colors(
-//                    thumbColor = Color.Transparent,
-//                    activeTrackColor = Color.Black,
-//                    inactiveTrackColor = Color.Gray
-//                    //TODO: 再生後の進捗バーが完全透明になるようにする
-//                    // （未再生時のバーの背景色がデフォルトで指定されているため再生しながら進捗バーを順次完全透明にすることが困難）
-//                ),
-//                thumb = {
-//                    Box(
-//                        modifier = Modifier
-//                            .size(4.dp, 32.dp)
-//                            .offset(x = 8.dp)
-//                            .offset(y = 14.dp) // TODO: 今後動的にアートワークの直下に配置できるように調整予定
-//                            .background(
-//                                Color.Red,
-//                                shape = RoundedCornerShape(0.dp, 0.dp, 5.dp, 5.dp)
-//                            )
-//                            .border(
-//                                2.dp,
-//                                Color.Red,
-//                                shape = RoundedCornerShape(0.dp, 0.dp, 5.dp, 5.dp)
-//                            )
-//                    )
-//                }
-//            )
-//        }
-
                 @Composable
                 fun CustomSlider(
                     currentPosition: Float,
