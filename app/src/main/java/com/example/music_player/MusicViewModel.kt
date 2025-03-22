@@ -107,10 +107,17 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     }
 
     fun previousTrack(context: Context) {
-        if (_currentSongIndex.value > 0) {
-            _currentSongIndex.update { it - 1 }
-            if (_isPlaying.value) {
-                playCurrentTrack(context)
+        val currentPos = mediaPlayer?.currentPosition ?:0
+
+        if (currentPos > 1000) {
+            mediaPlayer?.seekTo(0)
+            _currentPosition.value = 0
+        } else {
+            if (_currentSongIndex.value > 0) {
+                _currentSongIndex.update { it - 1 }
+                if (_isPlaying.value) {
+                    playCurrentTrack(context)
+                }
             }
         }
     }
