@@ -95,6 +95,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.delay
 import android.graphics.Bitmap
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.zIndex
 
 fun getArtworkBitmapFromPath(path: String?): Bitmap? {
     return path?.let {
@@ -111,57 +115,80 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
     val currentPosition by viewModel.currentPosition.collectAsState()
     val duration by viewModel.duration.collectAsState()
     val remainingTime by viewModel.remainingTime.collectAsState()
+    val albumArt = currentSong.albumArtPath?.let { path ->
+        Log.d("PlayerScreen", "Album Art Path: $path")
+        val file = File(path)
+        if (file.exists()) {
+            BitmapFactory.decodeFile(path)!!.asImageBitmap()
+        } else {
+            Log.d("PlayerScreen", "Album Art File Not Found: $path")
+            null
+        }
+    } ?: BitmapFactory.decodeResource(context.resources, R.drawable.placeholder_artwork).asImageBitmap()
 
-    Surface(
-        color = MaterialTheme.colorScheme.background,
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .consumeWindowInsets(PaddingValues(0.dp))
-            .background(viewModel.dominantColor.value.copy(alpha = 0.5f))
     ) {
-        Box(
+        Image(
+            bitmap = albumArt,
+            contentDescription = "Reflected Artwork",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .background(viewModel.dominantColor.value.copy(alpha = 0.6f)) // 半透明で確認しやすく
+                .height(465.dp)
+                .align(Alignment.BottomCenter)
+                .clip(RectangleShape)
+                .graphicsLayer {
+                    scaleY = -1f
+                    alpha = 0.4f
+                }
+                .blur(25.dp)
         )
 
-        LaunchedEffect(currentSong) {
-            currentSong?.let { song ->
-                val bitmap = getArtworkBitmapFromPath(song.albumArtPath)
-                bitmap?.let {
-                    viewModel.updateArtworkColor(it)
-                }
-            }
-        }
-
-        Column (
+        Surface(
+            color = Color.Transparent,
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(0.dp),
+                .fillMaxSize()
+                .consumeWindowInsets(PaddingValues(0.dp))
         ) {
-            val albumArt = currentSong.albumArtPath?.let { path ->
-                Log.d("PlayerScreen", "Album Art Path: $path")
-                val file = File(path)
-                if (file.exists()) {
-                    BitmapFactory.decodeFile(path)!!.asImageBitmap()
-                } else {
-                    Log.d("PlayerScreen", "Album Art File Not Found: $path")
-                    null
-                }
-            } ?: BitmapFactory.decodeResource(context.resources, R.drawable.placeholder_artwork).asImageBitmap()
-
-            Image(
-                bitmap = albumArt,
-                contentDescription = "Album Artwork",
-                contentScale = ContentScale.Crop,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(450.dp)
-                    .clip(RectangleShape)
+                    .fillMaxHeight()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                viewModel.dominantColor.value.copy(alpha = 0.2f)
+                            )
+                        )
+                    )
             )
+            LaunchedEffect(currentSong) {
+                currentSong?.let { song ->
+                    val bitmap = getArtworkBitmapFromPath(song.albumArtPath)
+                    bitmap?.let {
+                        viewModel.updateArtworkColor(it)
+                    }
+                }
+            }
 
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(0.dp),
+            ) {
+                Image(
+                    bitmap = albumArt,
+                    contentDescription = "Album Artwork",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(450.dp)
+                        .clip(RectangleShape)
+                )
 //        Box(
 //            modifier = Modifier
 //                .fillMaxWidth()
@@ -201,279 +228,280 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
 //            )
 //        }
 
-            @Composable
-            fun CustomSlider(
-                currentPosition: Float,
-                duration: Float,
-                onSeek: (Float) -> Unit,
-                modifier: Modifier = Modifier
-            ) {
-                val progress = if (duration > 0) (currentPosition / duration).coerceIn(0f, 1f) else 0f
-                //CanvasによるSlider実装
-                Canvas(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures { offset ->
-                                val newProgress = (offset.x / size.width).coerceIn(0f, 1f)
-                                onSeek(newProgress * duration)
-                                println("Tapped at: ${offset.x}")
-                            }
-                        }
+                @Composable
+                fun CustomSlider(
+                    currentPosition: Float,
+                    duration: Float,
+                    onSeek: (Float) -> Unit,
+                    modifier: Modifier = Modifier
                 ) {
-                    val barHeight = 8.dp.toPx()
-                    val barY = size.height / 2
+                    val progress = if (duration > 0) (currentPosition / duration).coerceIn(0f, 1f) else 0f
+                    //CanvasによるSlider実装
+                    Canvas(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures { offset ->
+                                    val newProgress = (offset.x / size.width).coerceIn(0f, 1f)
+                                    onSeek(newProgress * duration)
+                                    println("Tapped at: ${offset.x}")
+                                }
+                            }
+                    ) {
+                        val barHeight = 8.dp.toPx()
+                        val barY = size.height / 2
 
-                    //未再生バーのレイアウト
-                    drawLine(
-                        color = Color.Transparent.copy(alpha = 0.2f),
-                        start = Offset(0f,barY),
-                        end = Offset(size.width,barY),
-                        strokeWidth = barHeight
-                    )
+                        //未再生バーのレイアウト
+                        drawLine(
+                            color = Color.Transparent.copy(alpha = 0.2f),
+                            start = Offset(0f,barY),
+                            end = Offset(size.width,barY),
+                            strokeWidth = barHeight
+                        )
 
-                    //再生済(進捗)バーのレイアウト
-                    drawLine(
-                        color = Color.Black,
-                        start = Offset(0f, barY),
-                        end = Offset(size.width * progress, barY),
-                        strokeWidth = barHeight
-                    )
+                        //再生済(進捗)バーのレイアウト
+                        drawLine(
+                            color = Color.Black,
+                            start = Offset(0f, barY),
+                            end = Offset(size.width * progress, barY),
+                            strokeWidth = barHeight
+                        )
 
-                    drawRoundRect(
-                        color = Color.Red,
-                        topLeft = Offset(size.width * progress - 4.dp.toPx(), barY - 4.dp.toPx()),
-                        size = Size(4.dp.toPx(),32.dp.toPx()),
-                        cornerRadius = CornerRadius(0.dp.toPx(),5.dp.toPx())
-                        // TODO: ４箇所のうち下側の左右だけ丸みをつけたい（上記ではX,Y毎に丸めるため４箇所とも丸まってしまう）
-                    )
-                }
-            }
-
-            CustomSlider(
-                currentPosition = currentPosition.toFloat(),
-                duration = duration.toFloat(),
-                onSeek = { newPosition -> println("Seek to: $newPosition") },
-                modifier = Modifier.padding(0.dp)
-            )
-
-            Spacer(modifier = Modifier.height(22.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(1f),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = formatTime(currentPosition),
-                    fontSize = 15.sp,
-                    fontFamily = FontFamily.SansSerif,
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
-                Text(text = "-" + formatTime(remainingTime),
-                    fontSize = 15.sp,
-                    fontFamily = FontFamily.SansSerif,
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(31.dp))
-
-            @Composable
-            fun AnimateScrollText(
-                text: String,
-                modifier: Modifier = Modifier,
-                fontSize: TextUnit = 24.sp,
-                speed: Int = 10000
-            ) {
-                val scrollState = rememberScrollState()
-                var textWidth by remember { mutableStateOf(0) }
-                var containerWidth by remember { mutableStateOf(0) }
-                val canScroll = remember(textWidth, containerWidth) {
-                    textWidth > containerWidth
-                }
-
-                LaunchedEffect(canScroll) {
-                    if (canScroll) {
-                        val scrollDistance = textWidth - containerWidth
-
-                        while (true) {
-                            scrollState.animateScrollTo(
-                                scrollDistance,
-                                animationSpec = tween(
-                                    durationMillis = speed,
-                                    easing = LinearEasing
-                                )
-                            )
-                            delay(1000)
-                            scrollState.scrollTo(0)
-                            delay(500)
-                        }
+                        drawRoundRect(
+                            color = Color.Red,
+                            topLeft = Offset(size.width * progress - 4.dp.toPx(), barY - 4.dp.toPx()),
+                            size = Size(4.dp.toPx(),32.dp.toPx()),
+                            cornerRadius = CornerRadius(0.dp.toPx(),5.dp.toPx())
+                            // TODO: ４箇所のうち下側の左右だけ丸みをつけたい（上記ではX,Y毎に丸めるため４箇所とも丸まってしまう）
+                        )
                     }
                 }
 
-                Box(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .height(44.dp)
-                        .wrapContentSize(Alignment.Center)
-                        .horizontalScroll(scrollState, enabled = false)
-                ) {
-                    Text(
-                        text = text,
-                        fontSize = fontSize,
-                        fontWeight = FontWeight.Normal,
-                        fontFamily = FontFamily.SansSerif,
-                        color = Color.Black,
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Clip,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onGloballyPositioned {
-                                textWidth = it.size.width
-                            }
-                    )
-                }
-            }
+                CustomSlider(
+                    currentPosition = currentPosition.toFloat(),
+                    duration = duration.toFloat(),
+                    onSeek = { newPosition -> println("Seek to: $newPosition") },
+                    modifier = Modifier.padding(0.dp)
+                )
 
-            AnimateScrollText(text = currentSong.title)
-
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Text(
-                text = currentSong.artist + "  -  " + currentSong.album,
-                fontSize = 17.sp,
-                fontFamily = FontFamily.SansSerif,
-                color = Color.Gray,
-                overflow = TextOverflow.Clip,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(80.dp))
-
-            ConstraintLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-            ) {
-                val (controlButtons) = createRefs()
+                Spacer(modifier = Modifier.height(22.dp))
 
                 Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .padding(horizontal = 32.dp)
-                        .constrainAs(controlButtons) {
-                            bottom.linkTo(parent.bottom, margin = 180.dp)
-                        }
+                    modifier = Modifier.fillMaxWidth(1f),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    IconButton(
-                        onClick = { viewModel.previousTrack(context) },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
-                            .background(Color.Transparent)
-                            .offset(y = 0.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.previous),
-                            contentDescription = "Previous",
-                            modifier = Modifier
-                                .size(35.dp)
-                        )
+                    Text(
+                        text = formatTime(currentPosition),
+                        fontSize = 15.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                    Text(text = "-" + formatTime(remainingTime),
+                        fontSize = 15.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(31.dp))
+
+                @Composable
+                fun AnimateScrollText(
+                    text: String,
+                    modifier: Modifier = Modifier,
+                    fontSize: TextUnit = 24.sp,
+                    speed: Int = 10000
+                ) {
+                    val scrollState = rememberScrollState()
+                    var textWidth by remember { mutableStateOf(0) }
+                    var containerWidth by remember { mutableStateOf(0) }
+                    val canScroll = remember(textWidth, containerWidth) {
+                        textWidth > containerWidth
                     }
 
-                    IconButton(
-                        onClick = {
-                            if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
-                        },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
-                            .background(Color.Transparent)
-                    ) {
-                        if (isPlaying) {
-                            Image(
-                                painter = painterResource(id = R.drawable.pause),
-                                contentDescription = "Pause",
-                                modifier = Modifier
-                                    .size(35.dp)
-                            )
-                        } else {
-                            Image(
-                                painter = painterResource(id = R.drawable.baseline_play_arrow_24),
-                                contentDescription = "Pause",
-                                modifier = Modifier
-                                    .size(55.dp)
-                            )
+                    LaunchedEffect(canScroll) {
+                        if (canScroll) {
+                            val scrollDistance = textWidth - containerWidth
+
+                            while (true) {
+                                scrollState.animateScrollTo(
+                                    scrollDistance,
+                                    animationSpec = tween(
+                                        durationMillis = speed,
+                                        easing = LinearEasing
+                                    )
+                                )
+                                delay(1000)
+                                scrollState.scrollTo(0)
+                                delay(500)
+                            }
                         }
                     }
 
-                    IconButton(
-                        onClick = { viewModel.nextTrack(context) },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(RectangleShape)
-                            .background(Color.Transparent)
+                    Box(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                            .wrapContentSize(Alignment.Center)
+                            .horizontalScroll(scrollState, enabled = false)
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.next),
-                            contentDescription = "Next",
+                        Text(
+                            text = text,
+                            fontSize = fontSize,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = FontFamily.SansSerif,
+                            color = Color.Black,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Clip,
+                            textAlign = TextAlign.Center,
                             modifier = Modifier
-                                .size(35.dp)
+                                .fillMaxWidth()
+                                .onGloballyPositioned {
+                                    textWidth = it.size.width
+                                }
                         )
                     }
                 }
-            }
-            @Composable
-            fun VolumeControl(viewModel: MusicViewModel) {
-                var volume by remember { mutableStateOf(1f) }
-                val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                val maxVolume = remember { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) }
-                val currentVolume = remember { mutableStateOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) }
+
+                AnimateScrollText(text = currentSong.title)
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = currentSong.artist + "  -  " + currentSong.album,
+                    fontSize = 17.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    color = Color.Gray,
+                    overflow = TextOverflow.Clip,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(80.dp))
 
                 ConstraintLayout(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .fillMaxHeight()
                 ) {
-                    val (volumeSlider) = createRefs()
-                    Column(
+                    val (controlButtons) = createRefs()
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .constrainAs(volumeSlider) {
-                                bottom.linkTo(parent.bottom, margin = 120.dp)
+                            .height(50.dp)
+                            .padding(horizontal = 32.dp)
+                            .constrainAs(controlButtons) {
+                                bottom.linkTo(parent.bottom, margin = 180.dp)
                             }
-                            .padding(horizontal = 32.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Slider(
-                            value = currentVolume.value.toFloat(),
-                            onValueChange = {
-                                val newVolume = it.toInt().coerceIn(0,maxVolume)
-                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
-                                currentVolume.value = newVolume
-                            },
-                            valueRange = 0f..maxVolume.toFloat(),
+                        IconButton(
+                            onClick = { viewModel.previousTrack(context) },
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            colors = SliderDefaults.colors(
-                                thumbColor = Color.Black,
-                                activeTrackColor = Color.Black,
-                                inactiveTrackColor = Color.Gray
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(Color.Transparent)
+                                .offset(y = 0.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.previous),
+                                contentDescription = "Previous",
+                                modifier = Modifier
+                                    .size(35.dp)
                             )
-                        )
+                        }
+
+                        IconButton(
+                            onClick = {
+                                if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
+                            },
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(Color.Transparent)
+                        ) {
+                            if (isPlaying) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.pause),
+                                    contentDescription = "Pause",
+                                    modifier = Modifier
+                                        .size(35.dp)
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.baseline_play_arrow_24),
+                                    contentDescription = "Pause",
+                                    modifier = Modifier
+                                        .size(55.dp)
+                                )
+                            }
+                        }
+
+                        IconButton(
+                            onClick = { viewModel.nextTrack(context) },
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(RectangleShape)
+                                .background(Color.Transparent)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.next),
+                                contentDescription = "Next",
+                                modifier = Modifier
+                                    .size(35.dp)
+                            )
+                        }
                     }
                 }
+                @Composable
+                fun VolumeControl(viewModel: MusicViewModel) {
+                    var volume by remember { mutableStateOf(1f) }
+                    val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                    val maxVolume = remember { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) }
+                    val currentVolume = remember { mutableStateOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) }
+
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        val (volumeSlider) = createRefs()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .constrainAs(volumeSlider) {
+                                    bottom.linkTo(parent.bottom, margin = 120.dp)
+                                }
+                                .padding(horizontal = 32.dp),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Slider(
+                                value = currentVolume.value.toFloat(),
+                                onValueChange = {
+                                    val newVolume = it.toInt().coerceIn(0,maxVolume)
+                                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
+                                    currentVolume.value = newVolume
+                                },
+                                valueRange = 0f..maxVolume.toFloat(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
+                                colors = SliderDefaults.colors(
+                                    thumbColor = Color.White,
+                                    activeTrackColor = Color.Black,
+                                    inactiveTrackColor = Color.Gray
+                                )
+                            )
+                        }
+                    }
+                }
+                VolumeControl(viewModel)
             }
-            VolumeControl(viewModel)
         }
     }
 }
