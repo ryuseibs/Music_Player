@@ -94,6 +94,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.delay
+import android.graphics.Bitmap
+
+fun getArtworkBitmapFromPath(path: String?): Bitmap? {
+    return path?.let {
+        BitmapFactory.decodeFile(it)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +117,24 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
         modifier = Modifier
             .fillMaxSize()
             .consumeWindowInsets(PaddingValues(0.dp))
+            .background(viewModel.dominantColor.value.copy(alpha = 0.5f))
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(viewModel.dominantColor.value.copy(alpha = 0.6f)) // 半透明で確認しやすく
+        )
+
+        LaunchedEffect(currentSong) {
+            currentSong?.let { song ->
+                val bitmap = getArtworkBitmapFromPath(song.albumArtPath)
+                bitmap?.let {
+                    viewModel.updateArtworkColor(it)
+                }
+            }
+        }
+
         Column (
             modifier = Modifier
                 .fillMaxWidth()

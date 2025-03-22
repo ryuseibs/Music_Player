@@ -1,10 +1,17 @@
 package com.example.music_player
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.palette.graphics.Palette
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +42,9 @@ class MusicViewModel(private val context: Context) : ViewModel() {
 
     private val _remainingTime = MutableStateFlow(0)
     val remainingTime: StateFlow<Int> = _remainingTime
+
+    private val _dominantColor = mutableStateOf(Color.Black)
+    val dominantColor: State<Color> = _dominantColor
 
     init {
         loadMusicList(context)
@@ -113,4 +123,16 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         mediaPlayer?.setVolume(volume, volume)
     }
 
+    fun getArtworkBitmapFromPath(path: String?): Bitmap? {
+        return path?.let {
+            BitmapFactory.decodeFile(it)
+        }
+    }
+
+    fun updateArtworkColor(bitmap: Bitmap) {
+        Palette.from(bitmap).generate { palette ->
+            val colorInt = palette?.getDominantColor(android.graphics.Color.BLACK) ?: android.graphics.Color.BLACK
+            _dominantColor.value = Color(colorInt)
+        }
+    }
 }
