@@ -1,6 +1,8 @@
 package com.example.music_player
 
+import android.content.Context
 import android.graphics.BitmapFactory
+import android.media.AudioManager
 import android.util.Log
 import android.view.Surface
 import android.widget.ImageButton
@@ -409,6 +411,9 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
             @Composable
             fun VolumeControl(viewModel: MusicViewModel) {
                 var volume by remember { mutableStateOf(1f) }
+                val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                val maxVolume = remember { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) }
+                val currentVolume = remember { mutableStateOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) }
 
                 ConstraintLayout(
                     modifier = Modifier
@@ -426,12 +431,13 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Slider(
-                            value = volume,
+                            value = currentVolume.value.toFloat(),
                             onValueChange = {
-                                volume = it
-                                viewModel.setVolume(it)
+                                val newVolume = it.toInt().coerceIn(0,maxVolume)
+                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
+                                currentVolume.value = newVolume
                             },
-                            valueRange = 0f..1f,
+                            valueRange = 0f..maxVolume.toFloat(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
