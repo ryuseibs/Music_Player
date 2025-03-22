@@ -96,6 +96,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.delay
 import android.graphics.Bitmap
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
@@ -372,128 +373,149 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                         .fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(80.dp))
-
-                ConstraintLayout(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                ) {
-                    val (controlButtons) = createRefs()
-
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .padding(horizontal = 32.dp)
-                            .constrainAs(controlButtons) {
-                                bottom.linkTo(parent.bottom, margin = 180.dp)
-                            }
-                    ) {
-                        IconButton(
-                            onClick = { viewModel.previousTrack(context) },
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(CircleShape)
-                                .background(Color.Transparent)
-                                .offset(y = 0.dp)
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.previous),
-                                contentDescription = "Previous",
-                                modifier = Modifier
-                                    .size(35.dp)
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
-                            },
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(CircleShape)
-                                .background(Color.Transparent)
-                        ) {
-                            if (isPlaying) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.pause),
-                                    contentDescription = "Pause",
-                                    modifier = Modifier
-                                        .size(35.dp)
-                                )
-                            } else {
-                                Image(
-                                    painter = painterResource(id = R.drawable.baseline_play_arrow_24),
-                                    contentDescription = "Pause",
-                                    modifier = Modifier
-                                        .size(55.dp)
-                                )
-                            }
-                        }
-
-                        IconButton(
-                            onClick = { viewModel.nextTrack(context) },
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(RectangleShape)
-                                .background(Color.Transparent)
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.next),
-                                contentDescription = "Next",
-                                modifier = Modifier
-                                    .size(35.dp)
-                            )
-                        }
-                    }
-                }
-                @Composable
-                fun VolumeControl(viewModel: MusicViewModel) {
-                    var volume by remember { mutableStateOf(1f) }
-                    val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                    val maxVolume = remember { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) }
-                    val currentVolume = remember { mutableStateOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) }
-
+                Box(modifier = Modifier.fillMaxSize()) {
                     ConstraintLayout(
                         modifier = Modifier
                             .fillMaxSize()
+                            .zIndex(1f)
                     ) {
-                        val (volumeSlider) = createRefs()
-                        Column(
+                        val (controlButtons) = createRefs()
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .constrainAs(volumeSlider) {
-                                    bottom.linkTo(parent.bottom, margin = 120.dp)
+                                .height(50.dp)
+                                .constrainAs(controlButtons) {
+                                    bottom.linkTo(parent.bottom, margin = 180.dp)
+                                    start.linkTo(parent.start)
+                                    end.linkTo(parent.end)
                                 }
-                                .padding(horizontal = 32.dp),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            LaunchedEffect(Unit) {
-                                viewModel.initializeVolume(context)
+                            IconButton(
+                                onClick = { viewModel.previousTrack(context) },
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Transparent)
+                                    .offset(y = 0.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.previous),
+                                    contentDescription = "Previous",
+                                    modifier = Modifier
+                                        .size(35.dp)
+                                )
                             }
-                            Slider(
-                                value = viewModel.volume.value.toFloat(),
-                                onValueChange = {
-                                    viewModel.setVolume(it, context)
+
+                            IconButton(
+                                onClick = {
+                                    if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
                                 },
-                                valueRange = 0f..maxVolume.toFloat(),
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Transparent)
+                            ) {
+                                if (isPlaying) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.pause),
+                                        contentDescription = "Pause",
+                                        modifier = Modifier
+                                            .size(35.dp)
+                                    )
+                                } else {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.baseline_play_arrow_24),
+                                        contentDescription = "Pause",
+                                        modifier = Modifier
+                                            .size(55.dp)
+                                    )
+                                }
+                            }
+
+                            IconButton(
+                                onClick = { viewModel.nextTrack(context) },
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(RectangleShape)
+                                    .background(Color.Transparent)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.next),
+                                    contentDescription = "Next",
+                                    modifier = Modifier
+                                        .size(35.dp)
+                                )
+                            }
+                        }
+                    }
+                    @Composable
+                    fun VolumeControl(viewModel: MusicViewModel,context: Context) {
+                        val context = LocalContext.current
+                        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                        val maxVolume = remember { audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) }
+
+                        ConstraintLayout(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 32.dp)
+                        ) {
+                            val (volumeSlider, shuffleButton) = createRefs()
+
+                            // ボリュームスライダー
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(50.dp),
-                                colors = SliderDefaults.colors(
-                                    thumbColor = Color.White,
-                                    activeTrackColor = Color.Black,
-                                    inactiveTrackColor = Color.Gray
+                                    .constrainAs(volumeSlider) {
+                                        bottom.linkTo(parent.bottom, margin = 90.dp)
+                                        start.linkTo(parent.start)
+                                        end.linkTo(parent.end)
+                                    },
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                LaunchedEffect(Unit) {
+                                    viewModel.initializeVolume(context)
+                                }
+
+                                Slider(
+                                    value = viewModel.volume.value.toFloat(),
+                                    onValueChange = { viewModel.setVolume(it, context) },
+                                    valueRange = 0f..maxVolume.toFloat(),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = Color.White,
+                                        activeTrackColor = Color.Black,
+                                        inactiveTrackColor = Color.Gray
+                                    )
+                                )
+                            }
+
+                            // シャッフルボタン
+                            Image(
+                                painter = painterResource(
+                                    id = if (viewModel.isShuffleEnabled.value) {
+                                        R.drawable.shuffleon
+                                    } else {
+                                        R.drawable.shuffleoff
+                                    }
                                 ),
+                                contentDescription = "Shuffle",
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .background(Color.Transparent)
+                                    .clickable { viewModel.toggleShuffle() }
+                                    .constrainAs(shuffleButton) {
+                                        bottom.linkTo(parent.bottom, margin = 30.dp)
+                                        start.linkTo(parent.start)
+                                        end.linkTo(parent.end)
+                                    }
                             )
                         }
                     }
+                    VolumeControl(viewModel,context)
                 }
-                VolumeControl(viewModel)
             }
         }
     }

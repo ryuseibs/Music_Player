@@ -50,6 +50,9 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     private val _volume = mutableStateOf(5)  // 初期値は適宜
     val volume: State<Int> = _volume
 
+    private val _isShuffleEnabled = mutableStateOf(false)
+    val isShuffleEnabled: State<Boolean> = _isShuffleEnabled
+
     init {
         loadMusicList(context)
     }
@@ -101,12 +104,22 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     }
 
     fun nextTrack(context: Context) {
-        if (_currentSongIndex.value < _songList.value.size - 1) {
-            _currentPosition.value = 0
+        val listSize = _songList.value.size
+        if (_isShuffleEnabled.value && listSize > 1) {
+            var randomIndex: Int
+            do {
+                randomIndex = (0 until listSize).random()
+            } while (randomIndex == _currentSongIndex.value) // 同じ曲を回避
+            _currentSongIndex.value = randomIndex
+        } else if (_currentSongIndex.value < listSize - 1) {
             _currentSongIndex.update { it + 1 }
-            if (_isPlaying.value) {
-                playCurrentTrack(context)
-            }
+        } else {
+            _currentSongIndex.value = 0 // 末尾のときは先頭に戻る
+        }
+
+        _currentPosition.value = 0
+        if (_isPlaying.value) {
+            playCurrentTrack(context)
         }
     }
 
@@ -161,4 +174,9 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         _volume.value = currentVolume
     }
+
+    fun toggleShuffle() {
+        _isShuffleEnabled.value = !_isShuffleEnabled.value
+    }
+
 }
