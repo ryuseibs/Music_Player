@@ -98,7 +98,11 @@ import android.graphics.Bitmap
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.IntOffset
 
 fun getArtworkBitmapFromPath(path: String?): Bitmap? {
     return path?.let {
@@ -275,26 +279,37 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                     speed: Int = 10000
                 ) {
                     val scrollState = rememberScrollState()
-                    var textWidth by remember { mutableStateOf(0) }
-                    var containerWidth by remember { mutableStateOf(0) }
-                    val canScroll = remember(textWidth, containerWidth) {
-                        textWidth > containerWidth
-                    }
+                    val textWidth = remember { mutableStateOf(0) }
+                    val boxWidth = remember { mutableStateOf(0) }
+                    val textMeasurer = rememberTextMeasurer()
+                    val measuredText = textMeasurer.measure(
+                        AnnotatedString(text),
+                        style = TextStyle(fontSize = fontSize)
+                    )
+                    val needScroll = measuredText.size.width > boxWidth.value
 
-                    LaunchedEffect(canScroll) {
-                        if (canScroll) {
-                            val scrollDistance = textWidth - containerWidth
+                    LaunchedEffect(text, boxWidth.value) {
+                        scrollState.scrollTo(0)
+                        delay(500)
+                        if (needScroll) {
+                            val scrollDistance = measuredText.size.width - boxWidth.value
 
                             while (true) {
                                 scrollState.animateScrollTo(
                                     scrollDistance,
                                     animationSpec = tween(
-                                        durationMillis = speed,
+                                        durationMillis = scrollDistance * 100000 / speed,
                                         easing = LinearEasing
                                     )
                                 )
-                                delay(1000)
-                                scrollState.scrollTo(0)
+                                delay(1500)
+                                scrollState.animateScrollTo(
+                                    0,
+                                    animationSpec = tween(
+                                        durationMillis = scrollDistance / speed,
+                                        easing = LinearEasing
+                                    )
+                                )
                                 delay(500)
                             }
                         }
@@ -305,6 +320,9 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                             .fillMaxWidth()
                             .height(44.dp)
                             .wrapContentSize(Alignment.Center)
+                            .onGloballyPositioned {
+                                boxWidth.value = it.size.width
+                            }
                             .horizontalScroll(scrollState, enabled = false)
                     ) {
                         Text(
@@ -315,12 +333,11 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                             color = Color.Black,
                             maxLines = 1,
                             softWrap = false,
-                            overflow = TextOverflow.Clip,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .onGloballyPositioned {
-                                    textWidth = it.size.width
+                                    textWidth.value = it.size.width
                                 }
                         )
                     }
