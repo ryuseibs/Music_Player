@@ -98,6 +98,7 @@ class MusicViewModel(private val context: Context) : ViewModel() {
 
     fun nextTrack(context: Context) {
         if (_currentSongIndex.value < _songList.value.size - 1) {
+            _currentPosition.value = 0
             _currentSongIndex.update { it + 1 }
             if (_isPlaying.value) {
                 playCurrentTrack(context)
