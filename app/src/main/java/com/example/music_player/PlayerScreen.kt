@@ -220,7 +220,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                     Canvas(
                         modifier = modifier
                             .fillMaxWidth()
-                            .height(8.dp)
+                            .height(5.dp)
                             .pointerInput(Unit) {
                                 detectTapGestures { offset ->
                                     val newProgress = (offset.x / size.width).coerceIn(0f, 1f)
@@ -229,7 +229,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                                 }
                             }
                     ) {
-                        val barHeight = 8.dp.toPx()
+                        val barHeight = 5.dp.toPx()
                         val barY = size.height / 2
 
                         //未再生バーのレイアウト
@@ -250,7 +250,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
 
                         drawRoundRect(
                             color = Color.Red,
-                            topLeft = Offset(size.width * progress - 4.dp.toPx(), barY - 4.dp.toPx()),
+                            topLeft = Offset(size.width * progress - 3.dp.toPx(), barY - 2.5.dp.toPx()),
                             size = Size(4.dp.toPx(),32.dp.toPx()),
                             cornerRadius = CornerRadius(0.dp.toPx(),5.dp.toPx())
                             // TODO: ４箇所のうち下側の左右だけ丸みをつけたい（上記ではX,Y毎に丸めるため４箇所とも丸まってしまう）
@@ -261,11 +261,11 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 CustomSlider(
                     currentPosition = currentPosition.toFloat(),
                     duration = duration.toFloat(),
-                    onSeek = { newPosition -> println("Seek to: $newPosition") },
+                    onSeek = { newPosition -> viewModel.seekTo(newPosition.toInt()) },
                     modifier = Modifier.padding(0.dp)
                 )
 
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(1f),

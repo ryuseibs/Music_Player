@@ -91,6 +91,7 @@ class MusicViewModel(private val context: Context) : ViewModel() {
 
     fun seekTo(position: Int) {
         mediaPlayer?.seekTo(position)
+        _currentPosition.value = position
     }
 
     fun play() {
