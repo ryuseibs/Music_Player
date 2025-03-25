@@ -554,17 +554,22 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                                         .clickable { viewModel.toggleShuffle() }
                                 )
 
-                                // シャッフルボタン
+                                // リピートボタン
+
+                                val repeatMode by viewModel.repeatMode
+                                val repeatIcon = when (repeatMode) {
+                                    RepeatMode.off -> painterResource(id = R.drawable.repeat)
+                                    RepeatMode.all -> painterResource(id = R.drawable.repeat)
+                                    RepeatMode.one -> painterResource(id = R.drawable.repeatone)
+                                }
                                 Image(
-                                    painter = painterResource(
-                                        id = R.drawable.repeat
-                                    ),
+                                    painter = repeatIcon,
                                     contentDescription = "Repeat",
                                     modifier = Modifier
                                         .size(30.dp)
                                         .clip(RoundedCornerShape(3.dp))
                                         .background(
-                                            if (viewModel.isRepeatEnabled.value) {
+                                            if (repeatMode == RepeatMode.all || repeatMode == RepeatMode.one) {
                                                 Color.Black.copy(alpha = 0.2f)
                                             } else {
                                                 Color.Transparent

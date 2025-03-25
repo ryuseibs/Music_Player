@@ -10,6 +10,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.ReportFragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
@@ -21,6 +22,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+
+enum class RepeatMode {
+    off, all, one
+}
 
 class MusicViewModel(private val context: Context) : ViewModel() {
     private val _songList = MutableStateFlow<List<Song>>(emptyList())
@@ -53,8 +58,8 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     private val _isShuffleEnabled = mutableStateOf(false)
     val isShuffleEnabled: State<Boolean> = _isShuffleEnabled
 
-    private val _isRepeatEnabled = mutableStateOf(false)
-    val isRepeatEnabled: State<Boolean> = _isRepeatEnabled
+    private val _repeatMode = mutableStateOf(RepeatMode.off)
+    val repeatMode: State<RepeatMode> = _repeatMode
 
     init {
         loadMusicList(context)
@@ -95,7 +100,7 @@ class MusicViewModel(private val context: Context) : ViewModel() {
             start()
             _duration.value = duration
             setOnCompletionListener {
-                if (_isRepeatEnabled.value) {
+                if (_repeatMode.value == RepeatMode.one) {
                     seekTo(0)
                     start()
                 }else{
@@ -213,6 +218,10 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     }
 
     fun toggleRepeat() {
-        _isRepeatEnabled.value = !_isRepeatEnabled.value
+        _repeatMode.value = when (_repeatMode.value) {
+            RepeatMode.off -> RepeatMode.all
+            RepeatMode.all -> RepeatMode.one
+            RepeatMode.one -> RepeatMode.off
+        }
     }
 }
