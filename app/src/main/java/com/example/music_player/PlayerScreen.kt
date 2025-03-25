@@ -134,6 +134,8 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
             null
         }
     } ?: BitmapFactory.decodeResource(context.resources, R.drawable.placeholder_artwork).asImageBitmap()
+    val volume by viewModel.volume
+    var sliderVolume by remember { mutableStateOf(volume.toFloat()) }
 
     DisposableEffect(Unit) {
         val receiver = VolumeChangeReceiver { newVolume ->
@@ -511,12 +513,13 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 LaunchedEffect(Unit) {
-                                    viewModel.initializeVolume(context)
+                                    sliderVolume = volume.toFloat()
                                 }
 
                                 Slider(
-                                    value = viewModel.volume.value.toFloat(),
-                                    onValueChange = { viewModel.setVolume(it, context) },
+                                    value = sliderVolume,
+                                    onValueChange = { sliderVolume = it
+                                        viewModel.setVolume(it, context) },
                                     valueRange = 0f..maxVolume.toFloat(),
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = SliderDefaults.colors(
