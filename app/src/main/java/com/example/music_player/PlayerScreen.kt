@@ -495,16 +495,16 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                             // シャッフルボタン
                             Image(
                                 painter = painterResource(
-                                    id = if (viewModel.isShuffleEnabled.value) {
-                                        R.drawable.shuffleon
-                                    } else {
-                                        R.drawable.shuffleoff
-                                    }
-                                ),
+                                    id = R.drawable.shuffle),
                                 contentDescription = "Shuffle",
                                 modifier = Modifier
                                     .size(30.dp)
-                                    .background(Color.Transparent)
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(
+                                        if (viewModel.isShuffleEnabled.value)
+                                            Color.Black.copy(alpha = 0.2f)
+                                            else Color.Transparent
+                                    )
                                     .clickable { viewModel.toggleShuffle() }
                                     .constrainAs(shuffleButton) {
                                         bottom.linkTo(parent.bottom, margin = 30.dp)
