@@ -486,7 +486,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = SliderDefaults.colors(
                                         thumbColor = Color.White,
-                                        activeTrackColor = Color.Black,
+                                        activeTrackColor = Color.Black.copy(alpha = 0.7f),
                                         inactiveTrackColor = Color.Gray
                                     )
                                 )
