@@ -137,6 +137,14 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
     val volume by viewModel.volume
     var sliderVolume by remember { mutableStateOf(volume.toFloat()) }
 
+    LaunchedEffect(Unit) {
+        viewModel.initializeVolume(context)
+    }
+
+    LaunchedEffect(volume) {
+        sliderVolume = volume.toFloat()
+    }
+
     DisposableEffect(Unit) {
         val receiver = VolumeChangeReceiver { newVolume ->
             viewModel.updateVolumeFromSystem(newVolume)
@@ -512,10 +520,6 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                                     },
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                LaunchedEffect(Unit) {
-                                    sliderVolume = volume.toFloat()
-                                }
-
                                 Slider(
                                     value = sliderVolume,
                                     onValueChange = { sliderVolume = it
