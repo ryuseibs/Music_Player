@@ -497,7 +497,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                                 .fillMaxSize()
                                 .padding(horizontal = 32.dp)
                         ) {
-                            val (volumeSlider, shuffleButton) = createRefs()
+                            val (volumeSlider, ActionButton) = createRefs()
 
                             // ボリュームスライダー
                             Column(
@@ -526,27 +526,53 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                                     )
                                 )
                             }
-
-                            // シャッフルボタン
-                            Image(
-                                painter = painterResource(
-                                    id = R.drawable.shuffle),
-                                contentDescription = "Shuffle",
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                    .size(30.dp)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(
-                                        if (viewModel.isShuffleEnabled.value)
-                                            Color.Black.copy(alpha = 0.2f)
+                                    .fillMaxWidth()
+                                    .constrainAs(ActionButton) {
+                                    bottom.linkTo(parent.bottom, margin = 30.dp)
+                                    start.linkTo(parent.start)
+                                    end.linkTo(parent.end)
+                                }
+                            ) {
+                                // シャッフルボタン
+                                Image(
+                                    painter = painterResource(
+                                        id = R.drawable.shuffle
+                                    ),
+                                    contentDescription = "Shuffle",
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(
+                                            if (viewModel.isShuffleEnabled.value)
+                                                Color.Black.copy(alpha = 0.2f)
                                             else Color.Transparent
-                                    )
-                                    .clickable { viewModel.toggleShuffle() }
-                                    .constrainAs(shuffleButton) {
-                                        bottom.linkTo(parent.bottom, margin = 30.dp)
-                                        start.linkTo(parent.start)
-                                        end.linkTo(parent.end)
-                                    }
-                            )
+                                        )
+                                        .clickable { viewModel.toggleShuffle() }
+                                )
+
+                                // シャッフルボタン
+                                Image(
+                                    painter = painterResource(
+                                        id = R.drawable.repeat
+                                    ),
+                                    contentDescription = "Repeat",
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(
+                                            if (viewModel.isRepeatEnabled.value) {
+                                                Color.Black.copy(alpha = 0.2f)
+                                            } else {
+                                                Color.Transparent
+                                            }
+                                        )
+                                        .clickable { viewModel.toggleRepeat() }
+                                )
+                            }
                         }
                     }
                     VolumeControl(viewModel,context)

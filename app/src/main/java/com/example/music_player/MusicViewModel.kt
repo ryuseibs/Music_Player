@@ -53,6 +53,9 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     private val _isShuffleEnabled = mutableStateOf(false)
     val isShuffleEnabled: State<Boolean> = _isShuffleEnabled
 
+    private val _isRepeatEnabled = mutableStateOf(false)
+    val isRepeatEnabled: State<Boolean> = _isRepeatEnabled
+
     init {
         loadMusicList(context)
         viewModelScope.launch {
@@ -92,7 +95,12 @@ class MusicViewModel(private val context: Context) : ViewModel() {
             start()
             _duration.value = duration
             setOnCompletionListener {
-                nextTrack(context)
+                if (_isRepeatEnabled.value) {
+                    seekTo(0)
+                    start()
+                }else{
+                    nextTrack(context)
+                }
             }
         }
         _isPlaying.value = true
@@ -204,4 +212,7 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         _isShuffleEnabled.value = !_isShuffleEnabled.value
     }
 
+    fun toggleRepeat() {
+        _isRepeatEnabled.value = !_isRepeatEnabled.value
+    }
 }
