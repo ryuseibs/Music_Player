@@ -55,12 +55,31 @@ class MusicViewModel(private val context: Context) : ViewModel() {
 
     init {
         loadMusicList(context)
+        viewModelScope.launch {
+            while (_isPlaying.value) {
+                _currentPosition.value = mediaPlayer?.currentPosition ?: 0
+                _duration.value = mediaPlayer?.duration ?: 0
+                _remainingTime.value = maxOf((_duration.value) - (_currentPosition.value),0)
+                delay(500)
+            }
+        }
     }
 
     private fun loadMusicList(context: Context) {
         val songs = MusicRepository.getMusicList(context) // 端末の音楽を取得！
         if (songs.isNotEmpty()) {
             _songList.value = songs
+        }
+    }
+
+    private fun startProgressUpdater() {
+        viewModelScope.launch {
+            while (_isPlaying.value) {
+                _currentPosition.value = mediaPlayer?.currentPosition ?: 0
+                _duration.value = mediaPlayer?.duration ?: 0
+                _remainingTime.value = maxOf((_duration.value) - (_currentPosition.value),0)
+                delay(500)
+            }
         }
     }
 
@@ -76,17 +95,8 @@ class MusicViewModel(private val context: Context) : ViewModel() {
                 nextTrack(context)
             }
         }
-
         _isPlaying.value = true
-
-        viewModelScope.launch {
-            while (_isPlaying.value) {
-                _currentPosition.value = mediaPlayer?.currentPosition ?: 0
-                _duration.value = mediaPlayer?.duration ?: 0
-                _remainingTime.value = maxOf((_duration.value) - (_currentPosition.value),0)
-                delay(500)
-            }
-        }
+        startProgressUpdater()
     }
 
     fun seekTo(position: Int) {
@@ -94,9 +104,23 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         _currentPosition.value = position
     }
 
-    fun play() {
+    fun pauseForSeek() {
         mediaPlayer?.pause()
+    }
+
+    fun resumeAfterSeek() {
+        mediaPlayer?.start()
+        startProgressUpdater()
+    }
+
+    fun play(context: Context) {
+        if (mediaPlayer == null) {
+            playCurrentTrack(context)
+        } else {
+        mediaPlayer?.start()
         _isPlaying.value = true
+        startProgressUpdater()
+        }
     }
 
     fun pause() {

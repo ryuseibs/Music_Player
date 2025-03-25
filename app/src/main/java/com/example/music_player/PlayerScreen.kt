@@ -97,6 +97,7 @@ import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.delay
 import android.graphics.Bitmap
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
@@ -106,6 +107,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.viewModelScope
 
 fun getArtworkBitmapFromPath(path: String?): Bitmap? {
     return path?.let {
@@ -212,10 +214,18 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 fun CustomSlider(
                     currentPosition: Float,
                     duration: Float,
-                    onSeek: (Float) -> Unit,
+                    isPlaying: Boolean,
+                    onSeekStart: () -> Unit,
+                    onSeekEnd: (Int) -> Unit,
                     modifier: Modifier = Modifier
                 ) {
-                    val progress = if (duration > 0) (currentPosition / duration).coerceIn(0f, 1f) else 0f
+                    val progress = remember (currentPosition, duration)
+                    {
+                        if (duration > 0) (currentPosition / duration).coerceIn(0f, 1f)
+                        else 0f
+                    }
+                    var isDragging by remember { mutableStateOf(false) }
+
                     //CanvasによるSlider実装
                     Canvas(
                         modifier = modifier
@@ -223,10 +233,30 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                             .height(5.dp)
                             .pointerInput(Unit) {
                                 detectTapGestures { offset ->
-                                    val newProgress = (offset.x / size.width).coerceIn(0f, 1f)
-                                    onSeek(newProgress * duration)
-                                    println("Tapped at: ${offset.x}")
+                                    val tappedProgress = (offset.x / size.width).coerceIn(0f, 1f)
+                                    val newPosition = (tappedProgress * duration).toInt()
+                                    onSeekStart()
+                                    onSeekEnd(newPosition)
                                 }
+                            }
+                            .pointerInput(duration) {
+                                detectDragGestures(
+                                    onDragStart = {
+                                        isDragging = true
+                                        onSeekStart()
+                                    },
+                                    onDragEnd = {
+                                        isDragging = false
+                                    },
+                                    onDragCancel = {
+                                        isDragging = false
+                                    },
+                                    onDrag = { change, _ ->
+                                        val draggedProgress = (change.position.x / size.width).coerceIn(0f, 1f)
+                                        val newPosition = (draggedProgress * duration).toInt()
+                                        onSeekEnd(newPosition)
+                                    }
+                                )
                             }
                     ) {
                         val barHeight = 5.dp.toPx()
@@ -261,7 +291,12 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
                 CustomSlider(
                     currentPosition = currentPosition.toFloat(),
                     duration = duration.toFloat(),
-                    onSeek = { newPosition -> viewModel.seekTo(newPosition.toInt()) },
+                    isPlaying = isPlaying,
+                    onSeekStart = { viewModel.pauseForSeek() },
+                    onSeekEnd = { newPos ->
+                        viewModel.seekTo(newPos)
+                        if (isPlaying) viewModel.resumeAfterSeek()
+                    },
                     modifier = Modifier.padding(0.dp)
                 )
 
@@ -411,7 +446,7 @@ fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
 
                             IconButton(
                                 onClick = {
-                                    if (isPlaying) viewModel.pause() else viewModel.playCurrentTrack(context)
+                                    if (isPlaying) viewModel.pause() else viewModel.play(context)
                                 },
                                 modifier = Modifier
                                     .size(56.dp)
