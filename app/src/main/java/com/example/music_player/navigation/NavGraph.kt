@@ -27,7 +27,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             AlbumScreen()
         }
         composable(
-            route = "albumDetailScreen/{albumId}",
+            route = Screen.AlbumDetailScreen.route,
             arguments = listOf(navArgument("albumId") {
                 type = NavType.StringType
             })

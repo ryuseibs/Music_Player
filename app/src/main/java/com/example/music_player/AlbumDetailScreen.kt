@@ -8,13 +8,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun AlbumDetailScreen() {
+fun AlbumDetailScreen(albumId: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
         Text(
-            "AlbumDetail Screen",
+            text = "AlbumID: $albumId",
             modifier = Modifier
                 .align(Alignment.Center)
         )
