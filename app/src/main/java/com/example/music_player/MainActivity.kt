@@ -18,16 +18,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Music_PlayerTheme {
-                Surface (color = MaterialTheme.colorScheme.background) {
+//                Surface (color = MaterialTheme.colorScheme.background) {
                     val navController = rememberNavController()
 
-                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         NavGraph(
                             navController = navController,
-                            modifier = Modifier.padding(innerPadding)
+//                            modifier = Modifier.padding(innerPadding)
                         )
-                    }
-                }
+//                    }
+//                }
             }
         }
     }

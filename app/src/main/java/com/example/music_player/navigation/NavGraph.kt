@@ -17,14 +17,24 @@ import com.example.music_player.PlaylistScreen
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Player.route,
+        startDestination = Screen.ArtistList.route,
         modifier = modifier
     ) {
+        composable(Screen.ArtistList.route) {
+            ArtistScreen(navController)
+        }
         composable(Screen.Player.route) {
             PlayerScreen()
         }
-        composable(Screen.AlbumList.route) {
-            AlbumScreen()
+        composable(
+            route = Screen.AlbumList.route,
+            arguments = listOf(navArgument("artistName") {
+                type = NavType.StringType
+            })
+        ) {
+            backStackEntry ->
+            val artistName = backStackEntry.arguments?.getString("artistName") ?: ""
+            AlbumScreen(artistName = artistName, navController = navController)
         }
         composable(
             route = Screen.AlbumDetailScreen.route,
@@ -35,9 +45,6 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
           backStackEntry ->
             val albumId = backStackEntry.arguments?.getString("albumId") ?: ""
             AlbumDetailScreen(albumId)
-        }
-        composable(Screen.ArtistList.route) {
-            ArtistScreen()
         }
         composable(Screen.Playlist.route) {
             PlaylistScreen()
