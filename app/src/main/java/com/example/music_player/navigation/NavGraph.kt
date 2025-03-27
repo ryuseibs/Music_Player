@@ -21,7 +21,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         composable(Screen.ArtistList.route) {
-            ArtistScreen(navController)
+            ArtistScreen(navController = navController)
         }
         composable(Screen.Player.route) {
             PlayerScreen()
@@ -36,15 +36,13 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             val artistName = backStackEntry.arguments?.getString("artistName") ?: ""
             AlbumScreen(artistName = artistName, navController = navController)
         }
-        composable(
-            route = Screen.AlbumDetailScreen.route,
-            arguments = listOf(navArgument("albumId") {
-                type = NavType.StringType
-            })
-        ) {
+        composable("albumDetail/{albumId}") {
           backStackEntry ->
-            val albumId = backStackEntry.arguments?.getString("albumId") ?: ""
-            AlbumDetailScreen(albumId)
+            val albumId = backStackEntry.arguments?.getString("albumId") ?.toLongOrNull()
+
+            albumId?.let {
+                AlbumDetailScreen(albumId = it, navController = navController)
+            }
         }
         composable(Screen.Playlist.route) {
             PlaylistScreen()

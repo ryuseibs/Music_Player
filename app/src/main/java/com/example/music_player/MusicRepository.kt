@@ -6,6 +6,7 @@ import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import android.media.MediaMetadataRetriever
+import com.example.music_player.model.Artist
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,9 +16,11 @@ object MusicRepository {
     fun getMusicList(context: Context): List<Song> {
         val songList = mutableListOf<Song>()
         val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.DATA
         )
 
@@ -30,18 +33,22 @@ object MusicRepository {
         )
 
         cursor?.use {
+            val idColumn = it.getColumnIndex(MediaStore.Audio.Media._ID)
             val titleColumn = it.getColumnIndex(MediaStore.Audio.Media.TITLE)
             val artistColumn = it.getColumnIndex(MediaStore.Audio.Media.ARTIST)
             val albumColumn = it.getColumnIndex(MediaStore.Audio.Media.ALBUM)
+            val albumIdColumn = it.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
             val dataColumn = it.getColumnIndex(MediaStore.Audio.Media.DATA)
 
             while (it.moveToNext()) {
+                val id = it.getLong(idColumn)
                 val title = it.getString(titleColumn)
                 val artist = it.getString(artistColumn)
                 val album = it.getString(albumColumn)
+                val albumId = it.getLong(albumIdColumn)
                 val data = it.getString(dataColumn)
 
-                songList.add(Song(title, artist, album, data, null)) // `data` はファイルパス
+                songList.add(Song(id, title, artist, album, albumId, data, null)) // `data` はファイルパス
             }
         }
 
@@ -53,6 +60,18 @@ object MusicRepository {
         }
 
         return songList
+    }
+
+    fun getArtistList(context: Context): List<Artist> {
+        return getMusicList(context)
+            .map { it.artist }
+            .filter { it.isNotBlank() && it != "Unknown" }
+            .distinct()
+            .map { Artist(name = it) }
+    }
+
+    fun getSongsByAlbum(context: Context, albumId: Long): List<Song> {
+        return getMusicList(context).filter { it.albumId == albumId }
     }
 
     private fun getEmbeddedAlbumArt(context: Context, filePath: String): String? {

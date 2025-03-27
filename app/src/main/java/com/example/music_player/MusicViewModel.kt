@@ -32,8 +32,8 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     val songList: StateFlow<List<Song>> = _songList
 
     private val _currentSongIndex = MutableStateFlow(0)
-    val currentSong: StateFlow<Song> = _currentSongIndex.map { _songList.value.getOrNull(it) ?: Song("","","","","")}
-        .stateIn(viewModelScope, SharingStarted.Lazily, Song("","","","",""))
+    val currentSong: StateFlow<Song> = _currentSongIndex.map { _songList.value.getOrNull(it) ?: Song(0L,"","","",0L,"",null)}
+        .stateIn(viewModelScope, SharingStarted.Lazily, Song(0L,"","","",0L,"",null))
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
