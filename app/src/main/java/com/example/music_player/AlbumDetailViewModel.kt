@@ -7,9 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AlbumDetailViewModel(
-    private val musicRepository: MusicRepository
-): ViewModel() {
+class AlbumDetailViewModel(): ViewModel() {
+    private val musicRepository = MusicRepository
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     val songs: StateFlow<List<Song>> = _songs
 

@@ -36,10 +36,9 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             val artistName = backStackEntry.arguments?.getString("artistName") ?: ""
             AlbumScreen(artistName = artistName, navController = navController)
         }
-        composable("albumDetail/{albumId}") {
+        composable("albumDetailScreen/{albumId}") {
           backStackEntry ->
             val albumId = backStackEntry.arguments?.getString("albumId") ?.toLongOrNull()
-
             albumId?.let {
                 AlbumDetailScreen(albumId = it, navController = navController)
             }

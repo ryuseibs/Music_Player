@@ -38,7 +38,7 @@ fun AlbumDetailScreen(
                 headlineContent = { Text(song.title) },
                 supportingContent = { Text(song.artist) },
                 modifier = Modifier.clickable {
-                    navController.navigate("player/${song.id}")
+                    navController.navigate("playerScreen/${song.id}")
                 }
             )
         }

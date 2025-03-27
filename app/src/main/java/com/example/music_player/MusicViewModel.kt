@@ -61,6 +61,9 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     private val _repeatMode = mutableStateOf(RepeatMode.off)
     val repeatMode: State<RepeatMode> = _repeatMode
 
+    private val _songsByAlbum = MutableStateFlow<List<Song>>(emptyList())
+    val songsByAlbum: StateFlow<List<Song>> = _songsByAlbum
+
     init {
         loadMusicList(context)
         viewModelScope.launch {
@@ -222,6 +225,13 @@ class MusicViewModel(private val context: Context) : ViewModel() {
             RepeatMode.off -> RepeatMode.all
             RepeatMode.all -> RepeatMode.one
             RepeatMode.one -> RepeatMode.off
+        }
+    }
+
+    fun loadSongsByAlbum(context: Context, albumId: Long) {
+        viewModelScope.launch {
+            val allSongs = MusicRepository.getMusicList(context)
+            _songsByAlbum.value = allSongs.filter { it.albumId == albumId }
         }
     }
 }
