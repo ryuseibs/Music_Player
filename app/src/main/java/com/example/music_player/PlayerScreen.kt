@@ -108,6 +108,7 @@ import androidx.compose.ui.zIndex
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 
 fun getArtworkBitmapFromPath(path: String?): Bitmap? {
     return path?.let {
@@ -117,9 +118,27 @@ fun getArtworkBitmapFromPath(path: String?): Bitmap? {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerScreen(viewModel: MusicViewModel = viewModel()) {
+fun PlayerScreen(
+//    songId: Long,
+//    navController: NavController,
+    context: Context = LocalContext.current,
+    viewModel: MusicViewModel = viewModel()
+) {
     val currentSong by viewModel.currentSong.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
+    LaunchedEffect(currentSong) {
+        currentSong?.let {
+            viewModel.playSong(it.filePath)
+            viewModel.startProgressUpdater()
+        }
+    }
+    currentSong?.let {
+        song ->
+        Column {
+            Text(text = song.title)
+            Text(text = song.artist)
+        }
+    }
     val context = LocalContext.current
     val currentPosition by viewModel.currentPosition.collectAsState()
     val duration by viewModel.duration.collectAsState()

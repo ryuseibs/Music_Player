@@ -16,6 +16,7 @@ class AlbumDetailViewModel(): ViewModel() {
         viewModelScope.launch {
             val filterSongs = musicRepository.getSongsByAlbum(context, albumId)
             _songs.value = filterSongs
+
         }
     }
 }

@@ -6,6 +6,10 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class PlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,11 +37,28 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun initViewModel() {
-        val factory = MusicViewModelFactory(this)
+        val factory = MusicViewModelFactory(application)
         val musicViewModel = ViewModelProvider(this, factory).get(MusicViewModel::class.java)
 
-        setContent {
-            PlayerScreen(musicViewModel)
+        lifecycleScope.launch {
+            musicViewModel.songList.collect {
+                songs ->
+                Log.d("DEBUG", "songList size: ${songs.size}")
+                if (songs.isNotEmpty()) {
+                    val songId = intent.getLongExtra("songId", -1)
+                    Log.d("DEBUG", "Received songId: $songId")
+                    if (songId != -1L) {
+                        musicViewModel.setCurrentSongById(songId)
+                        Log.d("DEBUG", "Set current song to ID: $songId")
+                    }
+
+                    setContent {
+                        PlayerScreen(viewModel = musicViewModel)
+                    }
+
+                    cancel()
+                }
+            }
         }
     }
 }

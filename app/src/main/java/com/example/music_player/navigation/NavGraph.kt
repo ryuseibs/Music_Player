@@ -23,8 +23,13 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         composable(Screen.ArtistList.route) {
             ArtistScreen(navController = navController)
         }
-        composable(Screen.Player.route) {
-            PlayerScreen()
+        composable(
+            "playerScreen/{songId}"
+        ) { backStackEntry ->
+            val songId = backStackEntry.arguments?.getString("songId")?.toLongOrNull()
+            songId?.let{
+                PlayerScreen()
+            }
         }
         composable(
             route = Screen.AlbumList.route,

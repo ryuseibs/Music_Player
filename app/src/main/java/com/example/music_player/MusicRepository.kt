@@ -74,7 +74,7 @@ object MusicRepository {
         return getMusicList(context).filter { it.albumId == albumId }
     }
 
-    private fun getEmbeddedAlbumArt(context: Context, filePath: String): String? {
+    fun getEmbeddedAlbumArt(context: Context, filePath: String): String? {
         val retriever = MediaMetadataRetriever()
         return try {
             retriever.setDataSource(filePath)

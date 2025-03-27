@@ -1,6 +1,8 @@
 package com.example.music_player
 
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
@@ -23,12 +26,12 @@ fun AlbumDetailScreen(
     albumId: Long,
     navController: NavController,
     context: Context = LocalContext.current,
-    viewModel: AlbumDetailViewModel = viewModel()
+    viewModel: MusicViewModel = viewModel()
     ) {
-    val songs by viewModel.songs.collectAsState()
+    val songs by viewModel.songsByAlbum.collectAsState()
 
     LaunchedEffect(albumId) {
-        viewModel.loadSongs(context, albumId)
+        viewModel.loadSongsByAlbum(albumId)
     }
 
     LazyColumn {
@@ -38,7 +41,10 @@ fun AlbumDetailScreen(
                 headlineContent = { Text(song.title) },
                 supportingContent = { Text(song.artist) },
                 modifier = Modifier.clickable {
-                    navController.navigate("playerScreen/${song.id}")
+                    val intent = Intent(context, PlayerActivity::class.java).apply {
+                        putExtra("songId", song.id)
+                    }
+                    context.startActivity(intent)
                 }
             )
         }

@@ -1,15 +1,18 @@
 package com.example.music_player
 
+import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ReportFragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,12 +25,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 enum class RepeatMode {
     off, all, one
 }
 
-class MusicViewModel(private val context: Context) : ViewModel() {
+class MusicViewModel(application: Application) : AndroidViewModel(application) {
+    private val context = application.applicationContext
     private val _songList = MutableStateFlow<List<Song>>(emptyList())
     val songList: StateFlow<List<Song>> = _songList
 
@@ -64,10 +69,12 @@ class MusicViewModel(private val context: Context) : ViewModel() {
     private val _songsByAlbum = MutableStateFlow<List<Song>>(emptyList())
     val songsByAlbum: StateFlow<List<Song>> = _songsByAlbum
 
+
     init {
         loadMusicList(context)
         viewModelScope.launch {
             while (_isPlaying.value) {
+                _songList.value = MusicRepository.getMusicList(context)
                 _currentPosition.value = mediaPlayer?.currentPosition ?: 0
                 _duration.value = mediaPlayer?.duration ?: 0
                 _remainingTime.value = maxOf((_duration.value) - (_currentPosition.value),0)
@@ -83,13 +90,15 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-    private fun startProgressUpdater() {
+    fun startProgressUpdater() {
         viewModelScope.launch {
-            while (_isPlaying.value) {
-                _currentPosition.value = mediaPlayer?.currentPosition ?: 0
-                _duration.value = mediaPlayer?.duration ?: 0
-                _remainingTime.value = maxOf((_duration.value) - (_currentPosition.value),0)
-                delay(500)
+            while (isActive) {
+                mediaPlayer?.let {
+                    _currentPosition.value = it.currentPosition
+                    _duration.value = it.duration
+                    _remainingTime.value = it.duration - it.currentPosition
+                }
+                delay(500) // 0.5秒ごとに更新
             }
         }
     }
@@ -113,6 +122,15 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         }
         _isPlaying.value = true
         startProgressUpdater()
+    }
+
+    fun playSong(path: String) {
+        mediaPlayer?.release()
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource(path)
+            prepare()
+            start()
+        }
     }
 
     fun seekTo(position: Int) {
@@ -228,10 +246,18 @@ class MusicViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-    fun loadSongsByAlbum(context: Context, albumId: Long) {
+    fun loadSongsByAlbum(albumId: Long) {
         viewModelScope.launch {
-            val allSongs = MusicRepository.getMusicList(context)
-            _songsByAlbum.value = allSongs.filter { it.albumId == albumId }
+//            val allSongs = MusicRepository.getMusicList(context)
+            _songsByAlbum.value = _songList.value.filter { it.albumId == albumId }
         }
     }
+
+    fun setCurrentSongById(songId: Long) {
+        val index = _songList.value.indexOfFirst { it.id == songId }
+        if (index != -1) {
+            _currentSongIndex.value = index
+        }
+    }
+
 }
