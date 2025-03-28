@@ -128,7 +128,7 @@ fun PlayerScreen(
     val isPlaying by viewModel.isPlaying.collectAsState()
     LaunchedEffect(currentSong) {
         currentSong?.let {
-            viewModel.playSong(it.filePath)
+            viewModel.play(context)
             viewModel.startProgressUpdater()
         }
     }
