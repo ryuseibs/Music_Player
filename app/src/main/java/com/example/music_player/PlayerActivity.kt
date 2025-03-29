@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class PlayerActivity : AppCompatActivity() {
@@ -41,23 +42,21 @@ class PlayerActivity : AppCompatActivity() {
         val musicViewModel = ViewModelProvider(this, factory).get(MusicViewModel::class.java)
 
         lifecycleScope.launch {
-            musicViewModel.songList.collect {
-                songs ->
-                Log.d("DEBUG", "songList size: ${songs.size}")
-                if (songs.isNotEmpty()) {
-                    val songId = intent.getLongExtra("songId", -1)
-                    Log.d("DEBUG", "Received songId: $songId")
-                    if (songId != -1L) {
-                        musicViewModel.setCurrentSongById(songId)
-                        Log.d("DEBUG", "Set current song to ID: $songId")
-                    }
+            val songs = musicViewModel.songList.first { it.isNotEmpty() }
+            Log.d("DEBUG", "songList size: ${songs.size}")
 
-                    setContent {
-                        PlayerScreen(viewModel = musicViewModel)
-                    }
+            val songId = intent.getLongExtra("songId", -1)
+            val albumId = intent.getLongExtra("albumId",-1)
+            Log.d("DEBUG", "Received songId: $songId")
+            Log.d("DEBUG", "Received songId: $albumId")
 
-                    cancel()
-                }
+            if (songId != -1L && albumId != -1L) {
+                val albumSongs = MusicRepository.getSongsByAlbum(applicationContext, albumId)
+                musicViewModel.setAlbumSongList(applicationContext, albumSongs, songId)
+            }
+
+            setContent {
+                PlayerScreen(viewModel = musicViewModel)
             }
         }
     }

@@ -14,12 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AlbumDetailScreen(
@@ -29,22 +33,29 @@ fun AlbumDetailScreen(
     viewModel: MusicViewModel = viewModel()
     ) {
     val songs by viewModel.songsByAlbum.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(albumId) {
         viewModel.loadSongsByAlbum(albumId)
     }
 
     LazyColumn {
-        items(songs) {
-             song ->
+        items(songs) { song ->
             ListItem(
                 headlineContent = { Text(song.title) },
                 supportingContent = { Text(song.artist) },
                 modifier = Modifier.clickable {
-                    val intent = Intent(context, PlayerActivity::class.java).apply {
-                        putExtra("songId", song.id)
+                    coroutineScope.launch {
+                        val albumSongs = MusicRepository.getSongsByAlbum(context, albumId)
+
+                        Log.d("DEBUG", "Album songs size: ${albumSongs.size}")
+                        viewModel.setAlbumSongList(context, albumSongs, song.id)
+                            val intent = Intent(context, PlayerActivity::class.java).apply {
+                                putExtra("songId", song.id)
+                                putExtra("albumId",albumId)
+                            }
+                            context.startActivity(intent)
                     }
-                    context.startActivity(intent)
                 }
             )
         }

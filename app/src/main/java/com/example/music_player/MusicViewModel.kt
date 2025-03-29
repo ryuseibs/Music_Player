@@ -17,6 +17,7 @@ import androidx.lifecycle.ReportFragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 
 enum class RepeatMode {
     off, all, one
@@ -268,6 +270,20 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         val index = _songList.value.indexOfFirst { it.id == songId }
         if (index != -1) {
             _currentSongIndex.value = index
+            Log.d("DEBUG", "✔ currentSongIndex set to $index")
+        }
+        Log.w("MusicViewModel", "⚠ songId $songId not found in current songList")
+    }
+
+    fun setAlbumSongList(
+        context: Context,
+        albumSongs: List<Song>,
+        selectedSongId: Long) {
+        _songList.value = albumSongs
+        val index = albumSongs.indexOfFirst { it.id == selectedSongId }
+        if (index != -1) {
+            _currentSongIndex.value = index
+            Log.d("DEBUG", "✔ 現在のインデックス = $index, 選ばれたID = ${selectedSongId}")
         }
     }
 }
