@@ -37,8 +37,18 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     val songList: StateFlow<List<Song>> = _songList
 
     private val _currentSongIndex = MutableStateFlow(0)
-    val currentSong: StateFlow<Song> = _currentSongIndex.map { _songList.value.getOrNull(it) ?: Song(0L,"","","",0L,"",null)}
-        .stateIn(viewModelScope, SharingStarted.Lazily, Song(0L,"","","",0L,"",null))
+    val currentSong: StateFlow<Song> = _currentSongIndex.map {
+        _songList.value.getOrNull(it) ?: Song(
+            0L,
+            "",
+            "",
+            "",
+            0L,
+            "",
+            null
+        )
+    }
+        .stateIn(viewModelScope, SharingStarted.Lazily, Song(0L, "", "", "", 0L, "", null))
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
@@ -77,7 +87,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 _songList.value = MusicRepository.getMusicList(context)
                 _currentPosition.value = mediaPlayer?.currentPosition ?: 0
                 _duration.value = mediaPlayer?.duration ?: 0
-                _remainingTime.value = maxOf((_duration.value) - (_currentPosition.value),0)
+                _remainingTime.value = maxOf((_duration.value) - (_currentPosition.value), 0)
                 delay(500)
             }
         }
@@ -115,7 +125,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 if (_repeatMode.value == RepeatMode.one) {
                     seekTo(0)
                     start()
-                }else{
+                } else {
                     nextTrack(context)
                 }
             }
@@ -151,9 +161,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         if (mediaPlayer == null) {
             playCurrentTrack(context)
         } else {
-        mediaPlayer?.start()
-        _isPlaying.value = true
-        startProgressUpdater()
+            mediaPlayer?.start()
+            _isPlaying.value = true
+            startProgressUpdater()
         }
     }
 
@@ -170,20 +180,19 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 randomIndex = (0 until listSize).random()
             } while (randomIndex == _currentSongIndex.value) // 同じ曲を回避
             _currentSongIndex.value = randomIndex
-        } else if (_currentSongIndex.value < listSize - 1) {
-            _currentSongIndex.update { it + 1 }
         } else {
-            _currentSongIndex.value = 0 // 末尾のときは先頭に戻る
-        }
-
-        _currentPosition.value = 0
-        if (_isPlaying.value) {
+            if (_currentSongIndex.value < listSize - 1) {
+                _currentSongIndex.update { it + 1 }
+            } else {
+                _currentSongIndex.value = 0 // 末尾のときは先頭に戻る
+            }
+            _currentPosition.value = 0
             playCurrentTrack(context)
         }
     }
 
     fun previousTrack(context: Context) {
-        val currentPos = mediaPlayer?.currentPosition ?:0
+        val currentPos = mediaPlayer?.currentPosition ?: 0
 
         if (currentPos > 1000) {
             mediaPlayer?.seekTo(0)
@@ -191,10 +200,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             if (_currentSongIndex.value > 0) {
                 _currentSongIndex.update { it - 1 }
-                if (_isPlaying.value) {
-                    playCurrentTrack(context)
-                }
+            } else {
+                _currentSongIndex.value = _songList.value.size - 1
             }
+            _currentPosition.value = 0
+            playCurrentTrack(context)
         }
     }
 
@@ -219,7 +229,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateArtworkColor(bitmap: Bitmap) {
         Palette.from(bitmap).generate { palette ->
-            val colorInt = palette?.getDominantColor(android.graphics.Color.BLACK) ?: android.graphics.Color.BLACK
+            val colorInt = palette?.getDominantColor(android.graphics.Color.BLACK)
+                ?: android.graphics.Color.BLACK
             _dominantColor.value = Color(colorInt)
         }
     }
@@ -259,5 +270,4 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             _currentSongIndex.value = index
         }
     }
-
 }
