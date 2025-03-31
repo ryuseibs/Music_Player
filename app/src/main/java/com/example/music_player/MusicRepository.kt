@@ -1,11 +1,15 @@
 package com.example.music_player
 
+import android.content.ContentUris
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.provider.MediaStore
 import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import android.media.MediaMetadataRetriever
+import android.net.Uri
 import com.example.music_player.model.Artist
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,26 +79,30 @@ object MusicRepository {
     }
 
     fun getEmbeddedAlbumArt(context: Context, filePath: String): String? {
-        val retriever = MediaMetadataRetriever()
+        val cacheFile = File(context.cacheDir, "album_art_${filePath.hashCode()}.webp")
+        if (cacheFile.exists()) {
+            Log.d("DEBUG", "Cached album art found: ${cacheFile.absolutePath}")
+            return cacheFile.absolutePath
+        }
+
         return try {
+            val retriever = MediaMetadataRetriever()
             retriever.setDataSource(filePath)
             val art = retriever.embeddedPicture
             retriever.release()
 
             if (art != null) {
-                val file = File(context.cacheDir, "album_art_${filePath.hashCode()}.jpg")
-                FileOutputStream(file).use { fos ->
+                FileOutputStream(cacheFile).use { fos ->
                     fos.write(art)
                 }
-                Log.d("MusicRepository", "Saved Album Art: ${file.absolutePath}") // 🔹 ログで確認！
-                file.absolutePath
+                Log.d("DEBUG2", "🎨 Saved album art to cache: ${cacheFile.absolutePath}")
+                cacheFile.absolutePath
             } else {
-                Log.d("MusicRepository", "No Embedded Album Art Found: $filePath") // 🔹 ログで確認！
+                Log.w("DEBUG2", "⚠️ No embedded album art found: $filePath")
                 null
             }
         } catch (e: Exception) {
-            Log.e("MusicRepository", "Error retrieving album art: ${e.message}")
-            retriever.release()
+            Log.e("DEBUG2", "❌ Failed to get album art from $filePath: ${e.message}")
             null
         }
     }
