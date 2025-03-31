@@ -48,7 +48,7 @@ class PlayerActivity : AppCompatActivity() {
             val songId = intent.getLongExtra("songId", -1)
             val albumId = intent.getLongExtra("albumId",-1)
             Log.d("DEBUG", "Received songId: $songId")
-            Log.d("DEBUG", "Received songId: $albumId")
+            Log.d("DEBUG", "Received albumId: $albumId")
 
             if (songId != -1L && albumId != -1L) {
                 val albumSongs = MusicRepository.getSongsByAlbum(applicationContext, albumId)
