@@ -7,5 +7,6 @@ data class Song (
     val album: String,          // アルバム
     val albumId: Long,          // アルバムID
     val filePath: String,       // ファイルパス
-    val albumArtPath: String?   // アルバムアートワーク
+    val albumArtPath: String?,  // アルバムアートワーク
+    val trackNumber: Int        // トラック番号
 )

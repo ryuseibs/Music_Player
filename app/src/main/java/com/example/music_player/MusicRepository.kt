@@ -25,7 +25,8 @@ object MusicRepository {
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.DATA
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.TRACK
         )
 
         val cursor = context.contentResolver.query(
@@ -51,8 +52,9 @@ object MusicRepository {
                 val album = it.getString(albumColumn)
                 val albumId = it.getLong(albumIdColumn)
                 val data = it.getString(dataColumn)
+                val track = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK))
 
-                songList.add(Song(id, title, artist, album, albumId, data, null)) // `data` はファイルパス
+                songList.add(Song(id, title, artist, album, albumId, data, null, track)) // `data` はファイルパス
             }
         }
 

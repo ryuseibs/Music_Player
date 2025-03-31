@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
@@ -85,11 +86,14 @@ fun AlbumDetailScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            val sortedSongs = remember(songs) {
+                songs.sortedBy { it.trackNumber }
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                items(songs) { song ->
+                itemsIndexed(sortedSongs) { index, song ->
                     Box(
                         modifier = Modifier
                             .clickable {
@@ -107,15 +111,10 @@ fun AlbumDetailScreen(
                     ) {
                         Column(
                             modifier = Modifier
-
                         ) {
                             Text(
-                                text = song.title,
+                                text = "${index + 1}   ${song.title}",
                                 color = Color.Black
-                            )
-                            Text(
-                                text = song.artist,
-                                color = Color.LightGray
                             )
                         }
                     }
