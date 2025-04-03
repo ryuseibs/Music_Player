@@ -47,11 +47,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             "",
             0L,
             "",
-            null,
+            "",
             0
         )
     }
-        .stateIn(viewModelScope, SharingStarted.Lazily, Song(0L, "", "", "", 0L, "", null,0))
+        .stateIn(viewModelScope, SharingStarted.Lazily, Song(0L, "", "", "", 0L, "", "",0))
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
@@ -280,8 +280,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         context: Context,
         albumSongs: List<Song>,
         selectedSongId: Long) {
-        _songList.value = albumSongs
-        val index = albumSongs.indexOfFirst { it.id == selectedSongId }
+
+        val sortedSongs = albumSongs.sortedBy { it.trackNumber }
+
+        _songList.value = sortedSongs
+        val index = sortedSongs.indexOfFirst { it.id == selectedSongId }
         if (index != -1) {
             _currentSongIndex.value = index
             Log.d("DEBUG", "✔ 現在のインデックス = $index, 選ばれたID = ${selectedSongId}")

@@ -103,6 +103,7 @@ fun AlbumDetailScreen(
                                     val intent = Intent(context, PlayerActivity::class.java).apply {
                                         putExtra("songId", song.id)
                                         putExtra("albumId", albumId)
+                                        putExtra("albumArtPath", albumArtPath)
                                     }
                                     context.startActivity(intent)
                                 }

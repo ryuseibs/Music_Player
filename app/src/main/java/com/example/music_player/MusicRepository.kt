@@ -53,8 +53,8 @@ object MusicRepository {
                 val albumId = it.getLong(albumIdColumn)
                 val data = it.getString(dataColumn)
                 val track = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK))
-
-                songList.add(Song(id, title, artist, album, albumId, data, null, track)) // `data` はファイルパス
+                val albumArtPath = getEmbeddedAlbumArt(context, data)
+                songList.add(Song(id, title, artist, album, albumId, data, albumArtPath, track)) // `data` はファイルパス
             }
         }
 
