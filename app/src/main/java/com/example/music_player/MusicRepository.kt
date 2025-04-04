@@ -26,7 +26,8 @@ object MusicRepository {
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.TRACK
+            MediaStore.Audio.Media.TRACK,
+            MediaStore.Audio.Media.YEAR
         )
 
         val cursor = context.contentResolver.query(
@@ -44,6 +45,7 @@ object MusicRepository {
             val albumColumn = it.getColumnIndex(MediaStore.Audio.Media.ALBUM)
             val albumIdColumn = it.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
             val dataColumn = it.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val yearColumn = it.getColumnIndex(MediaStore.Audio.Media.YEAR)
 
             while (it.moveToNext()) {
                 val id = it.getLong(idColumn)
@@ -54,7 +56,8 @@ object MusicRepository {
                 val data = it.getString(dataColumn)
                 val track = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK))
                 val albumArtPath = getEmbeddedAlbumArt(context, data)
-                songList.add(Song(id, title, artist, album, albumId, data, albumArtPath, track)) // `data` はファイルパス
+                val year = it.getInt(yearColumn)
+                songList.add(Song(id, title, artist, album, albumId, data, albumArtPath, track, year)) // `data` はファイルパス
             }
         }
 

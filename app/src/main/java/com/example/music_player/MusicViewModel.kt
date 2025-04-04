@@ -48,10 +48,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             0L,
             "",
             "",
+            0,
             0
         )
     }
-        .stateIn(viewModelScope, SharingStarted.Lazily, Song(0L, "", "", "", 0L, "", "",0))
+        .stateIn(viewModelScope, SharingStarted.Lazily, Song(0L, "", "", "", 0L, "", "",0,0))
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying

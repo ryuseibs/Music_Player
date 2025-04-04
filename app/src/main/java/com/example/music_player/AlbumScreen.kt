@@ -66,7 +66,7 @@ fun AlbumScreen(
             items(albums) { album ->
                 ListItem(
                     headlineContent = { Text(album.albumName) },
-                    supportingContent = {Text(album.artist)},
+                    supportingContent = {Text("${album.albumYear}・${album.albumSongCount}曲")},
                     leadingContent = {
                         album.albumArtPath?.let {
                             Image(

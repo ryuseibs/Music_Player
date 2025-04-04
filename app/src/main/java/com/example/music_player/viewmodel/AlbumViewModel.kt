@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.music_player.MusicRepository
 import com.example.music_player.model.Album
-import com.example.music_player.navigation.Screen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -26,6 +25,8 @@ class AlbumViewModel: ViewModel() {
                         albumId = albumId,
                         albumName = songGroup.first().album,
                         artist = songGroup.first().artist,
+                        albumYear = songGroup.first().year,
+                        albumSongCount = songGroup.size,
                         albumArtPath = songGroup.first().albumArtPath
                     )
                 }
