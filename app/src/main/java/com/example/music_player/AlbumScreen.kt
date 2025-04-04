@@ -8,7 +8,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ListItem
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,7 +23,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.music_player.viewmodel.AlbumViewModel
@@ -45,47 +49,62 @@ fun AlbumScreen(
         viewModel.loadAlbumsByArtist(context, artistName)
     }
 
-    LazyColumn {
-        items(albums) { album ->
-            ListItem(
-                headlineContent = { Text(album.albumName) },
-                supportingContent = {Text(album.artist)},
-                leadingContent = {
-                    album.albumArtPath?.let {
-                        Image(
-                            painter = rememberAsyncImagePainter(File(album.albumArtPath)),
-                            contentDescription = null,
-                            modifier = Modifier.size(56.dp)
-                        )
-                    }
-                },
-                modifier = Modifier
-                    .clickable {
-                        coroutineScope.launch {
-                            val songs = MusicRepository.getSongsByAlbum(context, album.albumId)
-                            val firstSongPath = songs.firstOrNull()?.filePath
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
 
-                            // 🔍 ログで確認
-                            android.util.Log.d("DEBUG2", "🎵 First song path: $firstSongPath [albumId=${album.albumId}]")
+        Text(
+            text = artistName,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(start = 16.dp, top = 250.dp, bottom = 8.dp)
+        )
 
-                            val artworkPath = if (firstSongPath != null) {
-                                MusicRepository.getEmbeddedAlbumArt(context, firstSongPath) ?: ""
-                            } else {
-                                ""
-                            }
+        LazyColumn {
+            items(albums) { album ->
+                ListItem(
+                    headlineContent = { Text(album.albumName) },
+                    supportingContent = {Text(album.artist)},
+                    leadingContent = {
+                        album.albumArtPath?.let {
+                            Image(
+                                painter = rememberAsyncImagePainter(File(album.albumArtPath)),
+                                contentDescription = null,
+                                modifier = Modifier.size(56.dp)
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .clickable {
+                            coroutineScope.launch {
+                                val songs = MusicRepository.getSongsByAlbum(context, album.albumId)
+                                val firstSongPath = songs.firstOrNull()?.filePath
 
-                            if (artworkPath.isNotEmpty()) {
-                                val encodedPath = URLEncoder.encode(artworkPath, "UTF-8")
-                                Log.d("DEBUG2", "🎨 Navigating to albumDetailScreen with path: $artworkPath")
-                                navController.navigate("albumDetailScreen/${album.albumId}/${Uri.encode(artworkPath)}")
-                            } else {
-                                Log.e("DEBUG2", "❌ No artworkPath found. Skipping navigation.")
+                                // 🔍 ログで確認
+                                android.util.Log.d("DEBUG2", "🎵 First song path: $firstSongPath [albumId=${album.albumId}]")
+
+                                val artworkPath = if (firstSongPath != null) {
+                                    MusicRepository.getEmbeddedAlbumArt(context, firstSongPath) ?: ""
+                                } else {
+                                    ""
+                                }
+
+                                if (artworkPath.isNotEmpty()) {
+                                    val encodedPath = URLEncoder.encode(artworkPath, "UTF-8")
+                                    Log.d("DEBUG2", "🎨 Navigating to albumDetailScreen with path: $artworkPath")
+                                    navController.navigate("albumDetailScreen/${album.albumId}/${Uri.encode(artworkPath)}")
+                                } else {
+                                    Log.e("DEBUG2", "❌ No artworkPath found. Skipping navigation.")
+                                }
                             }
                         }
-                    }
 
-            )
+                )
 
+            }
         }
     }
+
 }
