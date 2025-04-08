@@ -17,6 +17,7 @@ import androidx.lifecycle.ReportFragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
+import com.example.music_player.model.Album
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -83,6 +84,23 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val _songsByAlbum = MutableStateFlow<List<Song>>(emptyList())
     val songsByAlbum: StateFlow<List<Song>> = _songsByAlbum
 
+    val recentAlbums: StateFlow<List<Album>> = songList.map { songs ->
+        songs
+            .groupBy { it.albumId }
+            .map { (albumId, group) ->
+                val first = group.first()
+                Album(
+                    albumId = albumId,
+                    albumName = first.album,
+                    artist = first.artist,
+                    albumArtPath = group.firstOrNull { it.albumArtPath != null }?.albumArtPath,
+                    albumYear = first.year,
+                    albumSongCount = group.size
+                )
+            }
+            .sortedByDescending { it.albumYear } // or 他のロジックで最近追加順にする
+            .take(10)
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
         loadMusicList(context)
