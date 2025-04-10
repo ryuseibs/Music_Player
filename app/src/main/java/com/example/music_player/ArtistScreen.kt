@@ -139,6 +139,7 @@ fun ArtistScreen(
             ) {
                 items(artists) { artist ->
                     val artistSong = allsongs.filter { it.artist == artist.name }
+                    val albumCount = artistSong.map { it.albumId }.distinct().count()
                     val artworkPath = artistSong.firstOrNull {it.albumArtPath != null}?.albumArtPath
                     ListItem(
                         leadingContent = {
@@ -156,6 +157,12 @@ fun ArtistScreen(
                             text = artist.name,
                             color = Color.Black
                         ) },
+                        supportingContent = { Text(
+                            text = "${albumCount}アルバム",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
+                        },
                         modifier = Modifier
                             .clickable {
                                 navController.navigate("albumListScreen/${Uri.encode(artist.name)}")
