@@ -2,6 +2,7 @@ package com.example.music_player
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioManager
@@ -136,6 +137,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun playCurrentTrack(context: Context) {
+        val intent = Intent(context, MusicPlayBackService::class.java)
+        context.startService(intent)
+
         mediaPlayer?.release()
         val songPath = _songList.value.getOrNull(_currentSongIndex.value)?.filePath ?: return
         mediaPlayer = MediaPlayer().apply {

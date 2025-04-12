@@ -15,6 +15,7 @@ class MusicPlayBackService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        buildNotification()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -28,6 +29,7 @@ class MusicPlayBackService : Service() {
                 start()
             }
         }
+        buildNotification()
         return START_STICKY
     }
 
