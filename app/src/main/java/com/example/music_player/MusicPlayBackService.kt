@@ -28,15 +28,35 @@ class MusicPlayBackService : Service() {
                 start()
             }
         }
-
         return START_STICKY
     }
 
+    override fun onDestroy() {
+        mediaPlayer?.release()
+        super.onDestroy()
+    }
+
     override fun onBind(p0: Intent?): IBinder? {
-        TODO("Not yet implemented")
+        return null
+    }
+
+    private fun buildNotification(): Notification {
+        return NotificationCompat.Builder(this, "music_channel_id")
+            .setContentTitle("音楽再生中")
+            .setContentText("アプリ閉じても再生続けます")
+            .setSmallIcon(R.drawable.ic_music_note)
+            .build()
     }
 
     private fun createNotificationChannel() {
-        TODO("Not yet implemented")
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val serviceChannel = NotificationChannel(
+                "music_channel_id",
+                "音楽再生チャンネル",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager?.createNotificationChannel(serviceChannel)
+        }
     }
 }
