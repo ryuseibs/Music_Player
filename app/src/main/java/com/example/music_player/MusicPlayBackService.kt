@@ -18,14 +18,15 @@ class MusicPlayBackService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val filePath = intent?.getStringExtra("filePath")
-
-        if (!filePath.isNullOrEmpty()) {
-            playSong(filePath)
+        when (intent?.action) {
+            "PLAY" -> {
+                val path = intent.getStringExtra("songPath")
+                path?.let {
+                    startForeground(1, buildNotification())
+                    playSong(it) // ← ここでサービス側の playSong() を呼び出す
+                }
+            }
         }
-
-        val notification = buildNotification()
-        startForeground(1, notification)
         return START_STICKY
     }
 
@@ -45,6 +46,11 @@ class MusicPlayBackService : Service() {
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        stopSelf() // サービスを停止して、再生も終了させる
     }
 
     private fun buildNotification(): Notification {

@@ -1,6 +1,7 @@
 package com.example.music_player
 
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.media.AudioManager
@@ -127,9 +128,12 @@ fun PlayerScreen(
     val currentSong by viewModel.currentSong.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
     LaunchedEffect(currentSong) {
-        currentSong?.let {
-            viewModel.play(context)
-            viewModel.startProgressUpdater()
+        currentSong?.let { song ->
+            val intent = Intent(context, MusicPlayBackService::class.java).apply {
+                action = "PLAY"
+                putExtra("songPath", song.filePath)
+            }
+            context.startForegroundService(intent)
         }
     }
     currentSong?.let {

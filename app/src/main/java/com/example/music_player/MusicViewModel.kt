@@ -160,6 +160,13 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         startProgressUpdater()
     }
 
+    fun playWithService(context: Context, path: String) {
+        val intent = Intent(context, MusicPlayBackService::class.java).apply {
+            putExtra("filePath", path)
+        }
+        context.startForegroundService(intent)
+    }
+
     fun seekTo(position: Int) {
         mediaPlayer?.seekTo(position)
         _currentPosition.value = position
