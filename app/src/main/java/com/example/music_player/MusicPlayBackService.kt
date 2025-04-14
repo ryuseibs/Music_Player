@@ -15,22 +15,27 @@ class MusicPlayBackService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        buildNotification()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val songPath = intent?.getStringExtra("songPath")
+        val filePath = intent?.getStringExtra("filePath")
 
-        if (songPath != null) {
-            mediaPlayer?.release()
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(songPath)
-                prepare()
-                start()
-            }
+        if (!filePath.isNullOrEmpty()) {
+            playSong(filePath)
         }
-        buildNotification()
+
+        val notification = buildNotification()
+        startForeground(1, notification)
         return START_STICKY
+    }
+
+    private fun playSong(path: String) {
+        mediaPlayer?.release()
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource(path)
+            prepare()
+            start()
+        }
     }
 
     override fun onDestroy() {

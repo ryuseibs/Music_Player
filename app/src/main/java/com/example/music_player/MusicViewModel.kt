@@ -160,15 +160,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         startProgressUpdater()
     }
 
-    fun playSong(path: String) {
-        mediaPlayer?.release()
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(path)
-            prepare()
-            start()
-        }
-    }
-
     fun seekTo(position: Int) {
         mediaPlayer?.seekTo(position)
         _currentPosition.value = position

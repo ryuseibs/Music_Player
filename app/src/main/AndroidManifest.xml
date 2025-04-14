@@ -20,7 +20,8 @@
         <service
             android:name=".MusicPlayBackService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"/>
 
         <activity
             android:name=".PlayerActivity"
