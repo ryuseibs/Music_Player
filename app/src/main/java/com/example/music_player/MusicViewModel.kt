@@ -311,4 +311,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             Log.d("DEBUG", "✔ 現在のインデックス = $index, 選ばれたID = ${selectedSongId}")
         }
     }
+    fun startPlaybackService(context: Context, songPath: String) {
+        val intent = Intent(context, MusicPlayBackService::class.java).apply {
+            action = "PLAY"
+            putExtra("songPath", songPath)
+        }
+        context.startForegroundService(intent)
+    }
 }

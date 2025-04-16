@@ -129,11 +129,8 @@ fun PlayerScreen(
     val isPlaying by viewModel.isPlaying.collectAsState()
     LaunchedEffect(currentSong) {
         currentSong?.let { song ->
-            val intent = Intent(context, MusicPlayBackService::class.java).apply {
-                action = "PLAY"
-                putExtra("songPath", song.filePath)
-            }
-            context.startForegroundService(intent)
+            viewModel.startPlaybackService(context, song.filePath)
+            viewModel.startProgressUpdater()
         }
     }
     currentSong?.let {
