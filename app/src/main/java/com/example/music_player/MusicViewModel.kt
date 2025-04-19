@@ -59,7 +59,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
 
-    private var mediaPlayer: MediaPlayer? = null
+//    private var mediaPlayer: MediaPlayer? = null
 
     private val _currentPosition = MutableStateFlow(0)
     val currentPosition: StateFlow<Int> = _currentPosition
@@ -136,29 +136,29 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun playCurrentTrack(context: Context) {
-        val intent = Intent(context, MusicPlayBackService::class.java)
-        context.startService(intent)
-
-        mediaPlayer?.release()
-        val songPath = _songList.value.getOrNull(_currentSongIndex.value)?.filePath ?: return
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(songPath)
-            prepare()
-            start()
-            _duration.value = duration
-            setOnCompletionListener {
-                if (_repeatMode.value == RepeatMode.one) {
-                    seekTo(0)
-                    start()
-                } else {
-                    nextTrack(context)
-                }
-            }
-        }
-        _isPlaying.value = true
-        startProgressUpdater()
-    }
+//    fun playCurrentTrack(context: Context) {
+//        val intent = Intent(context, MusicPlayBackService::class.java)
+//        context.startService(intent)
+//
+//        mediaPlayer?.release()
+//        val songPath = _songList.value.getOrNull(_currentSongIndex.value)?.filePath ?: return
+//        mediaPlayer = MediaPlayer().apply {
+//            setDataSource(songPath)
+//            prepare()
+//            start()
+//            _duration.value = duration
+//            setOnCompletionListener {
+//                if (_repeatMode.value == RepeatMode.one) {
+//                    seekTo(0)
+//                    start()
+//                } else {
+//                    nextTrack(context)
+//                }
+//            }
+//        }
+//        _isPlaying.value = true
+//        startProgressUpdater()
+//    }
 
     fun playWithService(context: Context, path: String) {
         val intent = Intent(context, MusicPlayBackService::class.java).apply {
@@ -167,75 +167,75 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         context.startForegroundService(intent)
     }
 
-    fun seekTo(position: Int) {
-        mediaPlayer?.seekTo(position)
-        _currentPosition.value = position
-    }
+//    fun seekTo(position: Int) {
+//        mediaPlayer?.seekTo(position)
+//        _currentPosition.value = position
+//    }
 
-    fun pauseForSeek() {
-        mediaPlayer?.pause()
-    }
+//    fun pauseForSeek() {
+//        mediaPlayer?.pause()
+//    }
 
-    fun resumeAfterSeek() {
-        mediaPlayer?.start()
-        startProgressUpdater()
-    }
+//    fun resumeAfterSeek() {
+//        mediaPlayer?.start()
+//        startProgressUpdater()
+//    }
 
-    fun play(context: Context) {
-        if (mediaPlayer == null) {
-            playCurrentTrack(context)
-        } else {
-            mediaPlayer?.start()
-            _isPlaying.value = true
-            startProgressUpdater()
-        }
-    }
+//    fun play(context: Context) {
+//        if (mediaPlayer == null) {
+//            playCurrentTrack(context)
+//        } else {
+//            mediaPlayer?.start()
+//            _isPlaying.value = true
+//            startProgressUpdater()
+//        }
+//    }
 
-    fun pause() {
-        mediaPlayer?.pause()
-        _isPlaying.value = false
-    }
+//    fun pause() {
+//        mediaPlayer?.pause()
+//        _isPlaying.value = false
+//    }
 
-    fun nextTrack(context: Context) {
-        val listSize = _songList.value.size
-        if (_isShuffleEnabled.value && listSize > 1) {
-            var randomIndex: Int
-            do {
-                randomIndex = (0 until listSize).random()
-            } while (randomIndex == _currentSongIndex.value) // 同じ曲を回避
-            _currentSongIndex.value = randomIndex
-        } else {
-            if (_currentSongIndex.value < listSize - 1) {
-                _currentSongIndex.update { it + 1 }
-            } else {
-                _currentSongIndex.value = 0 // 末尾のときは先頭に戻る
-            }
-            _currentPosition.value = 0
-            playCurrentTrack(context)
-        }
-    }
+//    fun nextTrack(context: Context) {
+//        val listSize = _songList.value.size
+//        if (_isShuffleEnabled.value && listSize > 1) {
+//            var randomIndex: Int
+//            do {
+//                randomIndex = (0 until listSize).random()
+//            } while (randomIndex == _currentSongIndex.value) // 同じ曲を回避
+//            _currentSongIndex.value = randomIndex
+//        } else {
+//            if (_currentSongIndex.value < listSize - 1) {
+//                _currentSongIndex.update { it + 1 }
+//            } else {
+//                _currentSongIndex.value = 0 // 末尾のときは先頭に戻る
+//            }
+//            _currentPosition.value = 0
+//            playCurrentTrack(context)
+//        }
+//    }
 
-    fun previousTrack(context: Context) {
-        val currentPos = mediaPlayer?.currentPosition ?: 0
+//    fun previousTrack(context: Context) {
+//        val currentPos = mediaPlayer?.currentPosition ?: 0
+//
+//        if (currentPos > 1000) {
+//            mediaPlayer?.seekTo(0)
+//            _currentPosition.value = 0
+//        } else {
+//            if (_currentSongIndex.value > 0) {
+//                _currentSongIndex.update { it - 1 }
+//            } else {
+//                _currentSongIndex.value = _songList.value.size - 1
+//            }
+//            _currentPosition.value = 0
+//            playCurrentTrack(context)
+//        }
+//    }
 
-        if (currentPos > 1000) {
-            mediaPlayer?.seekTo(0)
-            _currentPosition.value = 0
-        } else {
-            if (_currentSongIndex.value > 0) {
-                _currentSongIndex.update { it - 1 }
-            } else {
-                _currentSongIndex.value = _songList.value.size - 1
-            }
-            _currentPosition.value = 0
-            playCurrentTrack(context)
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        mediaPlayer?.release()
-    }
+//    override fun onCleared() {
+//        super.onCleared()
+//        mediaPlayer?.release()
+//    }
 
     fun setVolume(volume: Float, context: Context) {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
