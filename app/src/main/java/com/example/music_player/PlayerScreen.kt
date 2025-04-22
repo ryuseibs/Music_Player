@@ -119,8 +119,6 @@ fun getArtworkBitmapFromPath(path: String?): Bitmap? {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
-//    songId: Long,
-//    navController: NavController,
     context: Context = LocalContext.current,
     viewModel: MusicViewModel = viewModel()
 ) {
